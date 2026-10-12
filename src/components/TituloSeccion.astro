@@ -1,0 +1,41 @@
+---
+interface Props {
+  etiqueta: string;
+  titulo: string;
+  texto?: string;
+  /** 'dividido' pone el texto a la derecha en pantallas grandes */
+  disposicion?: 'dividido' | 'apilado';
+  /** Para usar sobre fondos de color */
+  claro?: boolean;
+  id?: string;
+  class?: string;
+}
+
+const { etiqueta, titulo, texto, disposicion = 'dividido', claro = false, id, class: clase } = Astro.props;
+---
+
+<header
+  class:list={[
+    disposicion === 'dividido' ? 'grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-10' : 'flex flex-col gap-6',
+    clase,
+  ]}
+  data-aparecer
+>
+  <div class:list={[disposicion === 'dividido' && 'lg:col-span-7']}>
+    <p class:list={['etiqueta', claro && 'text-sobre-principal/90']}>{etiqueta}</p>
+    <h2 id={id} class="titulo-seccion mt-4">{titulo}</h2>
+  </div>
+  {
+    texto && (
+      <p
+        class:list={[
+          'max-w-md text-[1.0625rem] leading-relaxed',
+          claro ? 'text-sobre-principal/90' : 'text-suave',
+          disposicion === 'dividido' && 'lg:col-span-5 lg:justify-self-end lg:pb-2',
+        ]}
+      >
+        {texto}
+      </p>
+    )
+  }
+</header>

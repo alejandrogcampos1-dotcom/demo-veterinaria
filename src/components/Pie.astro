@@ -1,0 +1,142 @@
+---
+import { negocio } from '../data/negocio';
+import type { TipoRed } from '../data/tipos';
+import type { NombreIcono } from '../lib/iconos';
+import { linkWhatsApp, resumenHorarios } from '../lib/utilidades';
+import Icono from './Icono.astro';
+import Logo from './Logo.astro';
+
+const { marca, contacto, horarios, redes, footer } = negocio;
+const resumen = resumenHorarios(horarios.dias);
+const anio = new Date().getFullYear();
+
+// Íconos genéricos (sin logos de marcas)
+const iconoRed: Record<TipoRed, NombreIcono> = {
+  instagram: 'camara',
+  facebook: 'pulgar-arriba',
+  tiktok: 'musica',
+  otra: 'arroba',
+};
+---
+
+<footer class="relative overflow-hidden bg-tinta text-fondo">
+  <div class="contenedor relative pt-20 pb-10 sm:pt-24">
+    <div class="grid gap-12 sm:grid-cols-2 lg:grid-cols-12 lg:gap-10">
+      <div class="sm:col-span-2 lg:col-span-3">
+        <Logo variante="claro" />
+        <p class="mt-6 max-w-xs leading-relaxed text-fondo/75">{footer.descripcion}</p>
+        <a
+          href={linkWhatsApp(contacto.whatsapp, contacto.mensajeWhatsapp)}
+          target="_blank"
+          rel="noopener"
+          class="boton mt-8 min-h-12 bg-fondo px-5 text-sm text-tinta hover:-translate-y-0.5 hover:bg-white"
+        >
+          <Icono nombre="chat" class="size-4.5" trazo={2} />
+          Pedir turno por WhatsApp
+        </a>
+      </div>
+
+      <div class="lg:col-span-3">
+        <h2 class="text-sm font-semibold tracking-[0.12em] text-fondo/75 uppercase">Contacto</h2>
+        <ul class="mt-5 space-y-3.5">
+          <li class="flex gap-3">
+            <Icono nombre="pin" class="mt-0.5 size-4.5 shrink-0 text-acento" />
+            <span>
+              {contacto.direccion.calle}
+              <br />
+              <span class="text-fondo/75">{contacto.direccion.localidad}, {contacto.direccion.provincia}</span>
+            </span>
+          </li>
+          <li>
+            <a href={`tel:${contacto.telefonoLink}`} class="flex gap-3 transition hover:text-acento">
+              <Icono nombre="telefono" class="mt-0.5 size-4.5 shrink-0 text-acento" />
+              {contacto.telefono}
+            </a>
+          </li>
+          {
+            contacto.email && (
+              <li>
+                <a href={`mailto:${contacto.email}`} class="flex gap-3 break-all transition hover:text-acento">
+                  <Icono nombre="email" class="mt-0.5 size-4.5 shrink-0 text-acento" />
+                  {contacto.email}
+                </a>
+              </li>
+            )
+          }
+        </ul>
+      </div>
+
+      <div class="lg:col-span-3">
+        <h2 class="text-sm font-semibold tracking-[0.12em] text-fondo/75 uppercase">Horarios</h2>
+        <dl class="mt-5 space-y-3.5">
+          {
+            resumen.map((r) => (
+              <div class="flex justify-between gap-4 border-b border-fondo/10 pb-3.5 lg:block lg:border-0 lg:pb-0">
+                <dt class="text-fondo/75">{r.dias}</dt>
+                <dd class="tabular-nums">{r.horario}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        {
+          horarios.urgencias && (
+            <p class="mt-4 flex items-center gap-2 font-semibold text-acento">
+              <Icono nombre="sirena" class="size-4.5" />
+              {horarios.urgencias}
+            </p>
+          )
+        }
+      </div>
+
+      {
+        redes.length > 0 && (
+          <div class="lg:col-span-3">
+            <h2 class="text-sm font-semibold tracking-[0.12em] text-fondo/75 uppercase">Seguinos</h2>
+            <ul class="mt-5 space-y-3.5">
+              {redes.map((r) => (
+                <li>
+                  <a href={r.url} target="_blank" rel="noopener" class="flex items-center gap-3 transition hover:text-acento">
+                    <span class="grid size-9 shrink-0 place-items-center rounded-full border border-fondo/15">
+                      <Icono nombre={iconoRed[r.tipo]} class="size-4" />
+                    </span>
+                    <span class="min-w-0 break-words">{r.etiqueta}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </div>
+
+    <!-- Nombre gigante (decorativo) -->
+    <svg viewBox="0 0 1000 210" class="mt-16 w-full text-fondo/[0.07] select-none sm:mt-20" aria-hidden="true">
+      <text
+        x="500"
+        y="172"
+        text-anchor="middle"
+        textLength="990"
+        lengthAdjust="spacingAndGlyphs"
+        class="fill-current font-display font-extrabold"
+        style="font-size: 230px; letter-spacing: -0.04em;"
+      >
+        {marca.nombreCorto || marca.nombre}
+      </text>
+    </svg>
+
+    <div class="mt-6 flex flex-col gap-3 border-t border-fondo/10 pt-8 text-sm text-fondo/75 sm:flex-row sm:items-center sm:justify-between">
+      <p>© {anio} {marca.nombre}. Todos los derechos reservados.</p>
+      <p>
+        {footer.credito.texto}{' '}
+        <a
+          href={footer.credito.url}
+          target="_blank"
+          rel="noopener"
+          class="font-semibold text-fondo underline decoration-fondo/30 underline-offset-4 transition hover:decoration-fondo"
+        >
+          {footer.credito.nombre}
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>

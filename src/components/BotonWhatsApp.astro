@@ -1,0 +1,73 @@
+---
+// Botón flotante de WhatsApp con un globito que aparece a los pocos segundos
+import { negocio } from '../data/negocio';
+import { linkWhatsApp } from '../lib/utilidades';
+import Icono from './Icono.astro';
+
+const { contacto } = negocio;
+---
+
+<div class="fixed right-4 bottom-4 z-40 flex items-end gap-3 sm:right-6 sm:bottom-6">
+  <div
+    id="globo-ayuda"
+    class="globo relative mb-2 hidden items-center gap-1 rounded-2xl rounded-br-md bg-white py-2.5 pr-2 pl-4 text-[0.9375rem] font-semibold shadow-[0_18px_40px_-14px_rgba(15,23,42,0.45)] ring-1 ring-tinta/[0.06]"
+  >
+    <a href={linkWhatsApp(contacto.whatsapp, contacto.mensajeWhatsapp)} target="_blank" rel="noopener">
+      ¿Te ayudamos?
+    </a>
+    <button
+      type="button"
+      class="cerrar grid size-8 place-items-center rounded-full text-suave transition hover:bg-tinta/[0.05] hover:text-tinta"
+      aria-label="Cerrar mensaje"
+    >
+      <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18"></path>
+      </svg>
+    </button>
+  </div>
+
+  <a
+    href={linkWhatsApp(contacto.whatsapp, contacto.mensajeWhatsapp)}
+    target="_blank"
+    rel="noopener"
+    class="group relative grid size-15 place-items-center rounded-full bg-exito text-white shadow-[0_16px_36px_-10px_var(--marca-exito)] transition duration-300 ease-suave hover:scale-105"
+    aria-label="Escribinos por WhatsApp"
+  >
+    <span class="absolute inset-0 animate-ping rounded-full bg-exito opacity-30 [animation-duration:2.6s]"></span>
+    <Icono nombre="chat" class="relative size-7" trazo={2} />
+    <span class="absolute top-0.5 right-0.5 size-3.5 rounded-full border-2 border-white bg-acento"></span>
+  </a>
+</div>
+
+<style>
+  .globo.visible {
+    display: flex;
+    animation: entrar-globo 0.6s var(--ease-suave) both;
+  }
+  @keyframes entrar-globo {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.92);
+      transform-origin: bottom right;
+    }
+  }
+</style>
+
+<script>
+  const globo = document.getElementById('globo-ayuda');
+  const CLAVE = 'globo-cerrado';
+  let cerrado = false;
+  try {
+    cerrado = sessionStorage.getItem(CLAVE) === '1';
+  } catch {}
+
+  if (globo && !cerrado) {
+    window.setTimeout(() => globo.classList.add('visible'), 4000);
+    globo.querySelector('.cerrar')?.addEventListener('click', () => {
+      globo.classList.remove('visible');
+      try {
+        sessionStorage.setItem(CLAVE, '1');
+      } catch {}
+    });
+  }
+</script>

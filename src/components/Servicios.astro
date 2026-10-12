@@ -1,0 +1,98 @@
+---
+import { negocio } from '../data/negocio';
+import { linkWhatsApp, mensajeServicio } from '../lib/utilidades';
+import Icono from './Icono.astro';
+import TituloSeccion from './TituloSeccion.astro';
+
+const { servicios, contacto } = negocio;
+---
+
+{
+  servicios.items.length > 0 && (
+    <section id="servicios" class="seccion" aria-labelledby="titulo-servicios">
+      <div class="contenedor">
+        <TituloSeccion
+          id="titulo-servicios"
+          etiqueta={servicios.etiqueta}
+          titulo={servicios.titulo}
+          texto={servicios.texto}
+        />
+
+        <ul class="mt-12 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:mt-16 xl:grid-cols-4">
+          {servicios.items.map((s, i) => (
+            <li data-aparecer style={`--orden:${i % 4}`}>
+              <article
+                class:list={[
+                  'group relative grid h-full grid-cols-[auto_1fr] gap-x-4 rounded-[1.75rem] p-5 transition duration-500 ease-suave hover:-translate-y-1 sm:flex sm:flex-col sm:p-7',
+                  s.destacado
+                    ? 'bg-tinta text-fondo shadow-[0_30px_60px_-30px_rgba(15,23,42,0.7)]'
+                    : 'border border-tinta/[0.07] bg-white hover:shadow-[0_30px_60px_-34px_rgba(15,23,42,0.45)]',
+                ]}
+              >
+                <div class="row-span-3 flex items-start justify-between sm:mb-10">
+                  <span
+                    class:list={[
+                      'grid size-12 place-items-center rounded-2xl transition duration-500 ease-suave sm:size-14',
+                      s.destacado
+                        ? 'bg-acento text-sobre-acento'
+                        : 'bg-principal/10 text-principal group-hover:bg-principal group-hover:text-sobre-principal',
+                    ]}
+                  >
+                    <Icono nombre={s.icono} class="size-6 sm:size-7" trazo={1.6} />
+                  </span>
+                  <span
+                    class:list={[
+                      'hidden font-display text-sm font-semibold tabular-nums sm:block',
+                      s.destacado ? 'text-fondo/75' : 'text-suave',
+                    ]}
+                  >
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                </div>
+
+                <h3 class="self-center text-[1.1875rem] sm:self-auto leading-tight font-bold tracking-[-0.02em] sm:text-[1.375rem]">
+                  {s.titulo}
+                </h3>
+                <p
+                  class:list={[
+                    'mt-2 text-[0.9375rem] leading-relaxed sm:mt-3',
+                    s.destacado ? 'text-fondo/80' : 'text-suave',
+                  ]}
+                >
+                  {s.descripcion}
+                </p>
+
+                <div class="col-start-2 mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 sm:mt-auto sm:pt-7">
+                  {s.precio && (
+                    <span
+                      class:list={[
+                        'rounded-full px-3 py-1 text-sm font-semibold',
+                        s.destacado ? 'bg-fondo/10' : 'bg-acento/15 text-tinta',
+                      ]}
+                    >
+                      {s.precio}
+                    </span>
+                  )}
+                  <a
+                    href={linkWhatsApp(contacto.whatsapp, mensajeServicio(s.titulo, s.mensaje))}
+                    target="_blank"
+                    rel="noopener"
+                    class:list={[
+                      'inline-flex items-center gap-2 text-[0.9375rem] font-semibold after:absolute after:inset-0 after:rounded-[inherit]',
+                      s.destacado ? 'text-acento' : 'text-principal',
+                    ]}
+                  >
+                    <span>
+                      Consultar<span class="sr-only"> por {s.titulo.toLowerCase()}</span> por WhatsApp
+                    </span>
+                    <Icono nombre="flecha" class="size-4 transition duration-300 group-hover:translate-x-1" trazo={2.25} />
+                  </a>
+                </div>
+              </article>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}

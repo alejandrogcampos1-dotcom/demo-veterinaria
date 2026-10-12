@@ -1,0 +1,76 @@
+---
+// Tabla de horarios: resalta el día de hoy y muestra "Abierto ahora" / "Cerrado"
+// según la hora de la zona horaria configurada (se calcula en el navegador).
+import { negocio } from '../data/negocio';
+import { textoFranjas } from '../lib/utilidades';
+import Icono from './Icono.astro';
+
+const { horarios, contacto } = negocio;
+---
+
+<div class="flex h-full flex-col rounded-[2rem] border border-tinta/[0.07] bg-white p-6 sm:p-8">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h3 class="text-2xl font-bold tracking-[-0.02em]">Horarios</h3>
+    <p
+      class="group/estado inline-flex items-center gap-2 rounded-full bg-tinta/[0.05] px-3 py-1.5 text-sm font-semibold data-[abierto=false]:bg-acento/15 data-[abierto=true]:bg-exito/15"
+      data-estado
+      data-abierto=""
+    >
+      <span
+        class="size-2 rounded-full bg-tinta/30 group-data-[abierto=false]/estado:bg-acento group-data-[abierto=true]/estado:latido group-data-[abierto=true]/estado:bg-exito group-data-[abierto=true]/estado:text-exito"
+      ></span>
+      <span data-estado-texto>Horario de atención</span>
+      <span class="font-normal text-suave" data-estado-detalle></span>
+    </p>
+  </div>
+
+  <table class="mt-6 w-full border-separate border-spacing-0 text-[0.9375rem]">
+    <caption class="sr-only">Horarios de atención por día</caption>
+    <tbody>
+      {
+        horarios.dias.map((d, i) => (
+          <tr data-dia={i} class="group/dia">
+            <th
+              scope="row"
+              class="border-t border-tinta/[0.07] py-3.5 pl-3 in-[.hoy]:rounded-l-xl text-left font-medium group-first/dia:border-t-0 in-[.hoy]:border-transparent in-[.hoy]:bg-principal/[0.08] in-[.hoy]:font-bold in-[.hoy]:text-principal-oscuro"
+            >
+              {d.dia}
+              <span class="ml-2 hidden rounded-full bg-principal px-2 py-0.5 align-[0.1em] text-[0.625rem] font-bold tracking-wider text-sobre-principal uppercase in-[.hoy]:inline">
+                Hoy
+              </span>
+            </th>
+            <td
+              class:list={[
+                'border-t border-tinta/[0.07] py-3.5 pr-3 in-[.hoy]:rounded-r-xl text-right tabular-nums group-first/dia:border-t-0 in-[.hoy]:border-transparent in-[.hoy]:bg-principal/[0.08] in-[.hoy]:font-bold in-[.hoy]:text-principal-oscuro',
+                d.franjas.length === 0 && 'text-suave',
+              ]}
+            >
+              {textoFranjas(d.franjas)}
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  {
+    horarios.urgencias && (
+      <div class="mt-auto pt-6">
+        <div class="flex items-center gap-4 rounded-2xl bg-acento/[0.12] p-4">
+          <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-acento text-sobre-acento">
+            <Icono nombre="sirena" class="size-5.5" trazo={2} />
+          </span>
+          <div class="leading-tight">
+            <p class="font-display font-bold tracking-tight">{horarios.urgencias}</p>
+            <a
+              href={`tel:${contacto.telefonoLink}`}
+              class="mt-1 inline-block text-sm font-medium text-tinta/80 underline decoration-tinta/25 underline-offset-4 hover:decoration-tinta"
+            >
+              Llamá al {contacto.telefono}
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+</div>

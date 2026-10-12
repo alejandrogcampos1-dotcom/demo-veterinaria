@@ -1,0 +1,71 @@
+---
+import { negocio } from '../data/negocio';
+import { linkWhatsApp } from '../lib/utilidades';
+import Icono from './Icono.astro';
+
+const { faq, contacto } = negocio;
+---
+
+{
+  faq.items.length > 0 && (
+    <section id="preguntas" class="seccion" aria-labelledby="titulo-preguntas">
+      <div class="contenedor grid gap-12 lg:grid-cols-12 lg:gap-10">
+        <div class="lg:col-span-5" data-aparecer>
+          <div class="lg:sticky lg:top-32">
+            <p class="etiqueta">{faq.etiqueta}</p>
+            <h2 id="titulo-preguntas" class="titulo-seccion mt-4">
+              {faq.titulo}
+            </h2>
+            {faq.texto && <p class="mt-6 max-w-sm text-[1.0625rem] leading-relaxed text-suave">{faq.texto}</p>}
+            <a
+              href={linkWhatsApp(contacto.whatsapp, 'Hola! Tengo una consulta.')}
+              target="_blank"
+              rel="noopener"
+              class="boton-secundario mt-8"
+            >
+              <Icono nombre="chat" class="size-4.5 text-principal" trazo={2} />
+              Hacer otra pregunta
+            </a>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7">
+          <div class="border-b border-tinta/10">
+            {faq.items.map((p, i) => (
+              <details name="preguntas" class="group border-t border-tinta/10" data-aparecer style={`--orden:${i}`}>
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-6 font-display text-[1.125rem] leading-snug font-bold tracking-[-0.015em] transition hover:text-principal sm:py-7 sm:text-[1.3125rem] [&::-webkit-details-marker]:hidden">
+                  {p.pregunta}
+                  <span class="grid size-10 shrink-0 place-items-center rounded-full border border-tinta/15 text-tinta transition duration-500 ease-suave group-open:rotate-45 group-open:border-principal group-open:bg-principal group-open:text-sobre-principal">
+                    <svg viewBox="0 0 24 24" class="size-4.5" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true">
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                  </span>
+                </summary>
+                <p class="max-w-2xl pr-14 pb-7 text-[1.0625rem] leading-relaxed text-suave">{p.respuesta}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  /* Apertura suave del acordeón en navegadores que lo soportan */
+  @supports (interpolate-size: allow-keywords) {
+    :root {
+      interpolate-size: allow-keywords;
+    }
+    details::details-content {
+      block-size: 0;
+      overflow: hidden;
+      transition:
+        block-size 0.45s var(--ease-suave),
+        content-visibility 0.45s allow-discrete;
+    }
+    details[open]::details-content {
+      block-size: auto;
+    }
+  }
+</style>

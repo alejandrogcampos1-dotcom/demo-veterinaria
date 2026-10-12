@@ -1,0 +1,164 @@
+---
+import { negocio } from '../data/negocio';
+import { linkWhatsApp } from '../lib/utilidades';
+import Icono from './Icono.astro';
+import Logo from './Logo.astro';
+
+const { contacto, servicios, equipo, faq, modoDemo } = negocio;
+
+// El menú solo muestra las secciones que tienen contenido
+const enlaces = [
+  { texto: 'Servicios', href: '#servicios', visible: servicios.items.length > 0 },
+  { texto: 'Equipo', href: '#equipo', visible: equipo.items.length > 0 },
+  { texto: 'Horarios', href: '#ubicacion', visible: true },
+  { texto: 'Preguntas', href: '#preguntas', visible: faq.items.length > 0 },
+].filter((e) => e.visible);
+---
+
+<div
+  id="barra"
+  class:list={[
+    'sticky z-40 transition-transform duration-500 ease-suave [&.oculta]:-translate-y-[calc(100%+1rem)]',
+    modoDemo ? 'top-9' : 'top-0',
+  ]}
+>
+  <nav class="contenedor pt-3" aria-label="Principal">
+    <div
+      class="flex items-center justify-between gap-4 rounded-full border border-tinta/[0.07] bg-fondo/80 py-2 pr-2 pl-3 shadow-[0_8px_30px_-18px_rgba(15,23,42,0.4)] backdrop-blur-xl backdrop-saturate-150"
+    >
+      <Logo />
+
+      <ul class="hidden items-center gap-1 lg:flex">
+        {
+          enlaces.map((e) => (
+            <li>
+              <a
+                href={e.href}
+                class="rounded-full px-4 py-2.5 text-[0.9375rem] font-medium text-tinta/80 transition hover:bg-tinta/[0.05] hover:text-tinta"
+              >
+                {e.texto}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="flex items-center gap-2">
+        <a
+          href={linkWhatsApp(contacto.whatsapp, contacto.mensajeWhatsapp)}
+          target="_blank"
+          rel="noopener"
+          class="boton-principal min-h-11 px-4 text-sm whitespace-nowrap sm:px-5"
+        >
+          <Icono nombre="chat" class="hidden size-4.5 min-[420px]:block" trazo={2} />
+          <span>Pedir turno</span>
+        </a>
+        <button
+          type="button"
+          popovertarget="menu-movil"
+          class="grid size-11 place-items-center rounded-full border border-tinta/10 bg-white/70 transition hover:bg-white lg:hidden"
+          aria-label="Abrir menú"
+        >
+          <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M4 8h16M4 16h10"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div
+    id="menu-movil"
+    popover
+    class="menu-movil m-0 mx-auto mt-2 w-[calc(100%-2.5rem)] max-w-md rounded-[1.75rem] border border-tinta/[0.07] bg-fondo p-3 text-tinta shadow-[0_30px_60px_-20px_rgba(15,23,42,0.45)]"
+  >
+    <ul class="flex flex-col">
+      {
+        enlaces.map((e) => (
+          <li>
+            <a
+              href={e.href}
+              class="flex items-center justify-between rounded-2xl px-4 py-4 font-display text-2xl font-bold tracking-tight transition hover:bg-tinta/[0.04]"
+            >
+              {e.texto}
+              <Icono nombre="flecha" class="size-5 text-principal" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <a
+      href={linkWhatsApp(contacto.whatsapp, contacto.mensajeWhatsapp)}
+      target="_blank"
+      rel="noopener"
+      class="boton-principal mt-2 w-full"
+    >
+      <Icono nombre="chat" class="size-5" trazo={2} />
+      Pedir turno por WhatsApp
+    </a>
+  </div>
+</div>
+
+<style>
+  .menu-movil {
+    position: fixed;
+    inset: auto 0 auto 0;
+    top: calc(var(--alto-barra, 6rem) + 0.25rem);
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+    transition:
+      opacity 0.3s,
+      transform 0.4s var(--ease-suave),
+      display 0.4s allow-discrete,
+      overlay 0.4s allow-discrete;
+  }
+  .menu-movil:popover-open {
+    opacity: 1;
+    transform: none;
+  }
+  @starting-style {
+    .menu-movil:popover-open {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.98);
+    }
+  }
+  .menu-movil::backdrop {
+    background: rgb(15 23 42 / 0.25);
+    backdrop-filter: blur(2px);
+  }
+</style>
+
+<script>
+  const barra = document.getElementById('barra');
+  const menu = document.getElementById('menu-movil');
+
+  // El menú se abre justo debajo de la barra
+  const medir = () => {
+    if (!barra) return;
+    const { bottom } = barra.getBoundingClientRect();
+    document.documentElement.style.setProperty('--alto-barra', `${Math.max(bottom, 0)}px`);
+  };
+  menu?.addEventListener('beforetoggle', medir);
+
+  // Al tocar un link del menú, se cierra
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => menu.hidePopover()));
+
+  // La barra se esconde al bajar y vuelve a aparecer al subir
+  let ultimo = 0;
+  let pendiente = false;
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (pendiente) return;
+      pendiente = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const bajando = y > ultimo && y > 320;
+        if (!menu?.matches(':popover-open')) barra?.classList.toggle('oculta', bajando);
+        ultimo = y;
+        pendiente = false;
+      });
+    },
+    { passive: true },
+  );
+</script>

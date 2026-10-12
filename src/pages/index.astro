@@ -1,0 +1,42 @@
+---
+import BannerDemo from '../components/BannerDemo.astro';
+import BotonWhatsApp from '../components/BotonWhatsApp.astro';
+import CTA from '../components/CTA.astro';
+import Encabezado from '../components/Encabezado.astro';
+import Equipo from '../components/Equipo.astro';
+import FAQ from '../components/FAQ.astro';
+import Galeria from '../components/Galeria.astro';
+import Hero from '../components/Hero.astro';
+import Marquesina from '../components/Marquesina.astro';
+import Pie from '../components/Pie.astro';
+import PorQue from '../components/PorQue.astro';
+import Resenas from '../components/Resenas.astro';
+import Servicios from '../components/Servicios.astro';
+import Ubicacion from '../components/Ubicacion.astro';
+import Base from '../layouts/Base.astro';
+---
+
+<Base>
+  <a
+    href="#contenido"
+    class="sr-only z-[60] rounded-full bg-tinta px-5 py-3 font-semibold text-fondo focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+  >
+    Saltar al contenido
+  </a>
+  <BannerDemo />
+  <Encabezado />
+  <main id="contenido">
+    <Hero />
+    <Marquesina />
+    <Servicios />
+    <PorQue />
+    <Equipo />
+    <Galeria />
+    <Resenas />
+    <Ubicacion />
+    <FAQ />
+    <CTA />
+  </main>
+  <Pie />
+  <BotonWhatsApp />
+</Base>

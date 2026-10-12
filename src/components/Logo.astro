@@ -1,0 +1,48 @@
+---
+import { negocio } from '../data/negocio';
+import Icono from './Icono.astro';
+
+interface Props {
+  /** 'claro' para usar sobre fondos oscuros */
+  variante?: 'normal' | 'claro';
+  class?: string;
+}
+
+const { variante = 'normal', class: clase } = Astro.props;
+const { nombre, nombreCorto, logo } = negocio.marca;
+const corto = nombreCorto || nombre;
+// "Veterinaria Patitas" con nombre corto "Patitas" → bajada "Veterinaria"
+const bajada = nombreCorto && nombre.includes(nombreCorto) ? nombre.replace(nombreCorto, '').trim() : '';
+---
+
+<a href="#inicio" class:list={['group inline-flex items-center gap-2.5', clase]}>
+  {
+    logo ? (
+      <img src={logo} alt={nombre} class="h-10 w-auto" />
+    ) : (
+      <>
+        <span
+          class:list={[
+            'grid size-10 shrink-0 place-items-center rounded-[0.9rem] transition duration-500 ease-suave group-hover:-rotate-12',
+            variante === 'claro' ? 'bg-fondo text-tinta' : 'bg-principal text-sobre-principal',
+          ]}
+        >
+          <Icono nombre="huella" class="size-5.5 -rotate-12" trazo={2} />
+        </span>
+        <span class="flex flex-col leading-none">
+          {bajada && (
+            <span
+              class:list={[
+                'text-[0.625rem] font-semibold tracking-[0.16em] uppercase',
+                variante === 'claro' ? 'text-fondo/75' : 'text-suave',
+              ]}
+            >
+              {bajada}{' '}
+            </span>
+          )}
+          <span class="font-display text-[1.3rem] font-extrabold tracking-[-0.03em]">{corto}</span>
+        </span>
+      </>
+    )
+  }
+</a>

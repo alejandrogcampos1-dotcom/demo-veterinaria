@@ -1,0 +1,30 @@
+---
+// Barra fina que avisa que es una demo. Se apaga con modoDemo: false en negocio.ts
+import { negocio } from '../data/negocio';
+import { linkWhatsApp } from '../lib/utilidades';
+import Icono from './Icono.astro';
+
+const { demo } = negocio;
+---
+
+{
+  negocio.modoDemo && (
+    <div class="sticky top-0 z-50 bg-tinta text-fondo">
+      <div class="contenedor flex h-9 items-center justify-center gap-2.5 text-[0.8125rem]">
+        <span class="rounded-full bg-acento px-2 py-0.5 text-[0.625rem] leading-none font-bold tracking-[0.12em] text-sobre-acento uppercase">
+          Demo
+        </span>
+        <span class="hidden text-fondo/80 sm:inline">{demo.texto}</span>
+        <a
+          href={linkWhatsApp(demo.whatsapp, demo.mensaje)}
+          target="_blank"
+          rel="noopener"
+          class="group inline-flex items-center gap-1 font-semibold underline decoration-fondo/30 underline-offset-4 transition hover:decoration-fondo"
+        >
+          {demo.textoLink}
+          <Icono nombre="flecha" class="size-3.5 transition group-hover:translate-x-0.5" trazo={2.25} />
+        </a>
+      </div>
+    </div>
+  )
+}

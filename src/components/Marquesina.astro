@@ -1,0 +1,28 @@
+---
+// Cinta que se desliza con los nombres de los servicios (decorativa)
+import { negocio } from '../data/negocio';
+import Icono from './Icono.astro';
+
+const palabras = negocio.servicios.items.map((s) => s.titulo);
+---
+
+{
+  palabras.length > 0 && (
+    <div class="relative z-10 -my-2 overflow-x-clip py-6" aria-hidden="true">
+      <div class="-mx-6 -rotate-[1.6deg] bg-principal py-4 text-sobre-principal shadow-[0_20px_40px_-24px_var(--marca-principal)] sm:py-5">
+        <div class="flex w-max animate-marquesina">
+          {[0, 1].map(() => (
+            <ul class="flex shrink-0 items-center">
+              {palabras.map((p) => (
+                <li class="flex items-center gap-7 bg-principal pr-7 font-display text-xl font-bold tracking-tight whitespace-nowrap sm:text-2xl">
+                  {p}
+                  <Icono nombre="huella" class="size-5 -rotate-12 text-acento" trazo={2.25} />
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,60 @@
+---
+// Muestra una foto de public/img con tamaño, srcset y carga diferida automáticos.
+// Si existen las versiones -sm y -md (las genera `npm run fotos`) arma el srcset solo.
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import sharp from 'sharp';
+import type { Foto as TipoFoto } from '../data/tipos';
+
+interface Props {
+  foto: TipoFoto;
+  /** Ancho que ocupa en pantalla, por ejemplo '(min-width: 1024px) 40vw, 100vw' */
+  sizes?: string;
+  /** true solo para la foto principal (la primera que se ve) */
+  prioridad?: boolean;
+  /** 'eager' para fotos chicas que se ven apenas carga la página */
+  carga?: 'eager' | 'lazy';
+  class?: string;
+  /** Para fotos decorativas que repiten información */
+  decorativa?: boolean;
+}
+
+const { foto, sizes = '100vw', prioridad = false, carga, class: clase, decorativa = false } = Astro.props;
+
+const publico = (ruta: string) => join(process.cwd(), 'public', ruta);
+
+const ruta = publico(foto.src);
+let ancho: number | undefined;
+let alto: number | undefined;
+if (existsSync(ruta)) {
+  const meta = await sharp(ruta).metadata();
+  ancho = meta.width;
+  alto = meta.height;
+} else {
+  console.warn(`[Foto] No encuentro ${foto.src} en public/. Revisá la ruta en negocio.ts.`);
+}
+
+const variantes: string[] = [];
+if (ancho) {
+  for (const sufijo of ['-sm', '-md']) {
+    const ruta = foto.src.replace(/\.(\w+)$/, `${sufijo}.$1`);
+    if (!existsSync(publico(ruta))) continue;
+    const meta = await sharp(publico(ruta)).metadata();
+    if (meta.width && meta.width < ancho) variantes.push(`${ruta} ${meta.width}w`);
+  }
+}
+const srcset = variantes.length ? [...variantes, `${foto.src} ${ancho}w`].join(', ') : undefined;
+---
+
+<img
+  src={foto.src}
+  srcset={srcset}
+  sizes={srcset ? sizes : undefined}
+  width={ancho}
+  height={alto}
+  alt={decorativa ? '' : foto.alt}
+  loading={prioridad ? 'eager' : (carga ?? 'lazy')}
+  fetchpriority={prioridad ? 'high' : undefined}
+  decoding={prioridad ? 'sync' : 'async'}
+  class:list={[!clase?.includes('object-contain') && 'object-cover', clase]}
+/>

@@ -1,0 +1,148 @@
+---
+import { negocio } from '../data/negocio';
+import { linkComoLlegar, urlMapa } from '../lib/utilidades';
+import Horarios from './Horarios.astro';
+import Icono from './Icono.astro';
+import TituloSeccion from './TituloSeccion.astro';
+
+const { ubicacion, contacto, horarios } = negocio;
+const { lat, lng } = contacto.coordenadas;
+
+// Datos que usa el script para calcular "Abierto ahora"
+const datosHorarios = {
+  zona: horarios.zonaHoraria,
+  dias: horarios.dias.map((d) => ({ dia: d.dia, franjas: d.franjas })),
+  urgencias: horarios.urgencias || '',
+};
+---
+
+<section id="ubicacion" class="seccion" aria-labelledby="titulo-ubicacion">
+  <div class="contenedor">
+    <TituloSeccion id="titulo-ubicacion" etiqueta={ubicacion.etiqueta} titulo={ubicacion.titulo} texto={ubicacion.texto} />
+
+    <div class="mt-12 grid gap-4 lg:mt-16 lg:grid-cols-12 lg:gap-6">
+      <div class="lg:col-span-5" data-aparecer>
+        <Horarios />
+      </div>
+
+      <div
+        class="mapa relative min-h-[30rem] overflow-hidden rounded-[2rem] border border-tinta/[0.07] bg-principal/[0.06] lg:col-span-7"
+        data-aparecer
+        style="--orden:1"
+      >
+        <iframe
+          title={`Mapa con la ubicación de ${negocio.marca.nombre}`}
+          src={urlMapa(lat, lng)}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          class="pointer-events-none absolute inset-0 size-full saturate-[0.65] [.activo_&]:pointer-events-auto"
+        ></iframe>
+
+        <button
+          type="button"
+          class="activar absolute top-4 right-4 inline-flex items-center gap-2 rounded-full bg-white/95 px-3.5 py-2 text-xs font-semibold shadow-md backdrop-blur [.activo_&]:hidden"
+        >
+          <Icono nombre="pin" class="size-3.5 text-principal" trazo={2.25} />
+          Tocá para mover el mapa
+        </button>
+
+        <div
+          class="absolute inset-x-3 bottom-3 rounded-[1.5rem] bg-white p-5 shadow-[0_24px_50px_-20px_rgba(15,23,42,0.5)] sm:inset-x-auto sm:bottom-5 sm:left-5 sm:w-[22rem] sm:p-6"
+        >
+          <div class="flex gap-3.5">
+            <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-principal/10 text-principal">
+              <Icono nombre="pin" class="size-5.5" />
+            </span>
+            <address class="not-italic">
+              <span class="block font-display text-lg leading-tight font-bold tracking-tight">{contacto.direccion.calle}</span>
+              <span class="mt-0.5 block text-sm text-suave">
+                {contacto.direccion.localidad}, {contacto.direccion.provincia}
+              </span>
+              {contacto.direccion.referencia && <span class="mt-2 block text-sm text-suave">{contacto.direccion.referencia}</span>}
+            </address>
+          </div>
+          <a href={linkComoLlegar(negocio)} target="_blank" rel="noopener" class="boton-principal mt-5 w-full">
+            <Icono nombre="navegar" class="size-4.5" trazo={2} />
+            {ubicacion.textoBoton}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="application/json" id="datos-horarios" set:html={JSON.stringify(datosHorarios)} />
+
+<script>
+  // ── Mapa: en el celular no atrapa el scroll hasta que lo tocás ──
+  const mapa = document.querySelector<HTMLElement>('.mapa');
+  mapa?.querySelector('.activar')?.addEventListener('click', () => mapa.classList.add('activo'));
+
+  // ── Abierto ahora / Cerrado, con la hora del lugar ──
+  type Franja = { desde: string; hasta: string };
+  type Datos = { zona: string; dias: { dia: string; franjas: Franja[] }[]; urgencias: string };
+
+  const nodo = document.getElementById('datos-horarios');
+  const datos: Datos | null = nodo?.textContent ? JSON.parse(nodo.textContent) : null;
+
+  const minutos = (hora: string) => {
+    const [h, m] = hora.split(':').map(Number);
+    return h * 60 + m;
+  };
+  const corta = (hora: string) => {
+    const [h, m] = hora.split(':');
+    return m === '00' ? String(Number(h)) : `${Number(h)}:${m}`;
+  };
+
+  function ahora(zona: string) {
+    const partes = new Intl.DateTimeFormat('en-US', {
+      timeZone: zona,
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).formatToParts(new Date());
+    const valor = (tipo: string) => partes.find((p) => p.type === tipo)?.value ?? '';
+    const dia = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(valor('weekday'));
+    return { dia, minuto: Number(valor('hour')) * 60 + Number(valor('minute')) };
+  }
+
+  function calcular(d: Datos) {
+    const { dia, minuto } = ahora(d.zona);
+    const abierta = (d.dias[dia]?.franjas ?? []).find((f) => minutos(f.desde) <= minuto && minuto < minutos(f.hasta));
+    if (abierta) return { dia, abierto: true, detalle: `hasta las ${corta(abierta.hasta)} h` };
+
+    for (let k = 0; k < 8; k++) {
+      const indice = (dia + k) % 7;
+      for (const f of d.dias[indice]?.franjas ?? []) {
+        if (k === 0 && minutos(f.desde) <= minuto) continue;
+        const cuando = k === 0 ? 'hoy' : k === 1 ? 'mañana' : `el ${d.dias[indice].dia.toLowerCase()}`;
+        return { dia, abierto: false, detalle: `abre ${cuando} a las ${corta(f.desde)} h` };
+      }
+    }
+    return { dia, abierto: false, detalle: '' };
+  }
+
+  function actualizar() {
+    if (!datos) return;
+    const estado = calcular(datos);
+
+    document.querySelectorAll<HTMLElement>('[data-dia]').forEach((fila) => {
+      fila.classList.toggle('hoy', Number(fila.dataset.dia) === estado.dia);
+    });
+
+    document.querySelectorAll<HTMLElement>('[data-estado]').forEach((el) => {
+      const corto = el.dataset.estado === 'corto';
+      const texto = el.querySelector('[data-estado-texto]');
+      const detalle = el.querySelector('[data-estado-detalle]');
+      // En el chip de arriba, si está cerrado pero hay guardia, mostramos la guardia
+      const guardia = corto && !estado.abierto && datos.urgencias;
+      el.dataset.abierto = String(estado.abierto);
+      if (texto) texto.textContent = estado.abierto ? 'Abierto ahora' : guardia ? 'Guardia 24 h' : 'Cerrado ahora';
+      if (detalle) detalle.textContent = estado.detalle ? `· ${estado.detalle}` : '';
+    });
+  }
+
+  actualizar();
+  setInterval(actualizar, 60_000);
+</script>

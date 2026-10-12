@@ -1,0 +1,138 @@
+---
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+import { negocio } from '../data/negocio';
+import { direccionCompleta, textoSobre } from '../lib/utilidades';
+
+const { marca, contacto, horarios, seo, redes } = negocio;
+
+const colores = {
+  principal: marca.colores.principal,
+  acento: marca.colores.acento,
+  fondo: marca.colores.fondo,
+  texto: marca.colores.texto || '#1E293B',
+  exito: marca.colores.exito || '#22C55E',
+};
+
+// Variables CSS de la marca: todo el sitio toma los colores de acá
+const variables = [
+  `--marca-principal:${colores.principal}`,
+  `--marca-acento:${colores.acento}`,
+  `--marca-fondo:${colores.fondo}`,
+  `--marca-texto:${colores.texto}`,
+  `--marca-exito:${colores.exito}`,
+  `--marca-sobre-principal:${textoSobre(colores.principal, colores.texto)}`,
+  `--marca-sobre-acento:${textoSobre(colores.acento, colores.texto)}`,
+].join(';');
+
+const url = new URL(Astro.url.pathname, Astro.site);
+const imagenOg = new URL(seo.imagenOg || '/og.jpg', Astro.site);
+
+const DIAS_SCHEMA: Record<string, string> = {
+  Lunes: 'Monday',
+  Martes: 'Tuesday',
+  Miércoles: 'Wednesday',
+  Jueves: 'Thursday',
+  Viernes: 'Friday',
+  Sábado: 'Saturday',
+  Domingo: 'Sunday',
+};
+
+// Datos estructurados para que Google entienda que es una veterinaria
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VeterinaryCare',
+  name: marca.nombre,
+  description: seo.descripcion,
+  slogan: marca.eslogan,
+  url: url.href,
+  image: imagenOg.href,
+  logo: new URL(marca.logo || '/favicon.svg', Astro.site).href,
+  telephone: contacto.telefonoLink,
+  email: contacto.email || undefined,
+  foundingDate: marca.desde ? String(marca.desde) : undefined,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: contacto.direccion.calle,
+    addressLocality: contacto.direccion.localidad,
+    addressRegion: contacto.direccion.provincia,
+    postalCode: contacto.direccion.codigoPostal || undefined,
+    addressCountry: contacto.direccion.pais,
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: contacto.coordenadas.lat,
+    longitude: contacto.coordenadas.lng,
+  },
+  hasMap: `https://www.openstreetmap.org/?mlat=${contacto.coordenadas.lat}&mlon=${contacto.coordenadas.lng}#map=17/${contacto.coordenadas.lat}/${contacto.coordenadas.lng}`,
+  openingHoursSpecification: horarios.dias.flatMap((d) =>
+    d.franjas.map((f) => ({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: `https://schema.org/${DIAS_SCHEMA[d.dia]}`,
+      opens: f.desde,
+      closes: f.hasta,
+    })),
+  ),
+  sameAs: redes.map((r) => r.url),
+  areaServed: contacto.direccion.localidad,
+};
+---
+
+<!doctype html>
+<html lang="es-AR" style={variables}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    <title>{seo.titulo}</title>
+    <meta name="description" content={seo.descripcion} />
+    <link rel="canonical" href={url.href} />
+    <meta name="theme-color" content={colores.fondo} />
+    <meta name="format-detection" content="telephone=no" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:site_name" content={marca.nombre} />
+    <meta property="og:title" content={seo.titulo} />
+    <meta property="og:description" content={seo.descripcion} />
+    <meta property="og:url" content={url.href} />
+    <meta property="og:image" content={imagenOg.href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${marca.nombre} · ${direccionCompleta(negocio)}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <Font cssVariable="--font-titulos" preload />
+    <Font cssVariable="--font-textos" preload />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <slot />
+
+    <script>
+      // Aparición suave de los bloques al entrar en pantalla
+      const elementos = document.querySelectorAll<HTMLElement>('[data-aparecer]');
+      if ('IntersectionObserver' in window) {
+        const observador = new IntersectionObserver(
+          (entradas) => {
+            for (const entrada of entradas) {
+              if (!entrada.isIntersecting) continue;
+              entrada.target.classList.add('visible');
+              observador.unobserve(entrada.target);
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
+        );
+        elementos.forEach((el) => observador.observe(el));
+      } else {
+        elementos.forEach((el) => el.classList.add('visible'));
+      }
+    </script>
+  </body>
+</html>

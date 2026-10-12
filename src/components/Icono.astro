@@ -1,0 +1,15 @@
+---
+import { iconos, type NombreIcono } from '../lib/iconos';
+
+interface Props {
+  nombre: NombreIcono;
+  class?: string;
+  /** Grosor del trazo (Lucide usa 2 por defecto) */
+  trazo?: number;
+}
+
+const { nombre, class: clase, trazo = 1.75 } = Astro.props;
+const Componente = iconos[nombre];
+---
+
+<Componente class={clase} stroke-width={trazo} aria-hidden="true" focusable="false" />

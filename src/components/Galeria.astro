@@ -1,0 +1,59 @@
+---
+import { negocio } from '../data/negocio';
+import Foto from './Foto.astro';
+import Icono from './Icono.astro';
+import TituloSeccion from './TituloSeccion.astro';
+
+const { galeria } = negocio;
+---
+
+{
+  galeria.items.length > 0 && (
+    <section id="galeria" class="seccion overflow-x-clip" aria-labelledby="titulo-galeria">
+      <div class="contenedor">
+        <TituloSeccion id="titulo-galeria" etiqueta={galeria.etiqueta} titulo={galeria.titulo} texto={galeria.texto} />
+
+        <!--
+          Celular: carrusel que se desliza de costado.
+          Escritorio: mosaico que respeta la forma de cada foto (sirve para cualquier cantidad).
+        -->
+        <ul
+          class="carrusel -mx-5 mt-10 flex snap-x snap-mandatory scroll-px-5 gap-3 overflow-x-auto px-5 pb-2 sm:-mx-8 sm:scroll-px-8 sm:px-8 lg:mx-0 lg:mt-16 lg:block lg:columns-3 lg:gap-5 lg:overflow-visible lg:px-0 lg:pb-0"
+          tabindex="0"
+          aria-label="Fotos de la veterinaria"
+        >
+          {galeria.items.map((foto, i) => (
+            <li
+              class="w-[78%] shrink-0 snap-start sm:w-[44%] lg:mb-5 lg:w-auto lg:break-inside-avoid"
+              data-aparecer
+              style={`--orden:${i % 3}`}
+            >
+              <figure class="group overflow-hidden rounded-[1.5rem] bg-principal/10 lg:rounded-[1.75rem]">
+                <Foto
+                  foto={foto}
+                  sizes="(min-width: 1024px) 30vw, (min-width: 640px) 44vw, 78vw"
+                  class="aspect-[4/5] w-full transition duration-700 ease-suave group-hover:scale-[1.04] lg:aspect-auto lg:h-auto"
+                />
+              </figure>
+            </li>
+          ))}
+        </ul>
+
+        <p class="mt-4 flex items-center gap-2 text-sm font-medium text-suave lg:hidden" aria-hidden="true">
+          Deslizá para ver más
+          <Icono nombre="flecha" class="size-4" trazo={2} />
+        </p>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .carrusel {
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .carrusel::-webkit-scrollbar {
+    display: none;
+  }
+</style>

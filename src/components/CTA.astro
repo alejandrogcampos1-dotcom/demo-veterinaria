@@ -1,0 +1,56 @@
+---
+import { negocio } from '../data/negocio';
+import { linkWhatsApp } from '../lib/utilidades';
+import Foto from './Foto.astro';
+import Icono from './Icono.astro';
+import Mancha from './Mancha.astro';
+
+const { cta, contacto } = negocio;
+---
+
+<section class="px-3 pb-3 sm:px-5 sm:pb-5" aria-labelledby="titulo-cta">
+  <div
+    class="grano relative mx-auto max-w-[96rem] overflow-hidden rounded-[2.25rem] bg-acento text-sobre-acento sm:rounded-[3rem]"
+  >
+    <div class="huellitas pointer-events-none absolute inset-0 text-tinta opacity-[0.07]" aria-hidden="true"></div>
+    <Mancha forma={2} class="absolute -right-24 -bottom-40 w-[34rem] text-fondo/25 sm:-right-10 lg:right-16 lg:-bottom-56 lg:w-[44rem]" />
+
+    <div
+      class:list={[
+        'contenedor relative grid items-end lg:grid-cols-12',
+        cta.imagen ? 'pt-16 sm:pt-20 lg:py-28' : 'py-16 sm:py-20 lg:py-28',
+      ]}
+    >
+      <div class="lg:col-span-7" data-aparecer>
+        <h2
+          id="titulo-cta"
+          class="text-[2.75rem] leading-[0.98] font-extrabold tracking-[-0.045em] sm:text-6xl lg:text-[5.25rem]"
+        >
+          {cta.titulo}
+        </h2>
+        <p class="mt-6 max-w-md text-xl leading-snug font-medium sm:text-2xl">{cta.texto}</p>
+        <a
+          href={linkWhatsApp(contacto.whatsapp, contacto.mensajeWhatsapp)}
+          target="_blank"
+          rel="noopener"
+          class="boton mt-10 min-h-14 bg-tinta px-7 text-base text-fondo shadow-[0_18px_40px_-16px_rgba(15,23,42,0.8)] hover:-translate-y-0.5 hover:bg-black"
+        >
+          <Icono nombre="chat" class="size-5" trazo={2} />
+          {cta.boton}
+        </a>
+      </div>
+
+      {
+        cta.imagen && (
+          <div class="relative -mb-px mt-4 flex justify-end lg:absolute lg:top-10 lg:right-10 lg:bottom-0 lg:mt-0 lg:w-[38%] xl:right-20">
+            <Foto
+              foto={cta.imagen}
+              sizes="(min-width: 1024px) 32vw, 70vw"
+              class="h-auto w-[68%] max-w-[20rem] object-contain object-bottom drop-shadow-[0_30px_40px_rgba(15,23,42,0.25)] sm:w-[48%] lg:h-full lg:w-full lg:max-w-none"
+            />
+          </div>
+        )
+      }
+    </div>
+  </div>
+</section>

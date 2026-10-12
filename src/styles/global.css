@@ -1,0 +1,189 @@
+@import 'tailwindcss';
+
+/*
+  Los colores de marca vienen de negocio.ts (se inyectan en <html> como
+  --marca-*). Acá se convierten en clases de Tailwind: bg-principal,
+  text-acento, border-tinta/10, etc.
+*/
+@theme inline {
+  --color-principal: var(--marca-principal);
+  --color-principal-oscuro: color-mix(in oklab, var(--marca-principal) 78%, black);
+  --color-acento: var(--marca-acento);
+  --color-fondo: var(--marca-fondo);
+  --color-tinta: var(--marca-texto);
+  --color-suave: color-mix(in oklab, var(--marca-texto) 74%, var(--marca-fondo));
+  --color-exito: var(--marca-exito);
+  --color-sobre-principal: var(--marca-sobre-principal);
+  --color-sobre-acento: var(--marca-sobre-acento);
+  --color-papel: color-mix(in oklab, var(--marca-fondo) 55%, white);
+
+  --font-display: var(--font-titulos);
+  --font-sans: var(--font-textos);
+}
+
+@theme {
+  --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-girar: girar 28s linear infinite;
+  --animate-marquesina: marquesina 40s linear infinite;
+
+  @keyframes girar {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes marquesina {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes latido {
+    from {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    to {
+      transform: scale(3.2);
+      opacity: 0;
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-fondo font-sans text-tinta antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display text-balance;
+    word-spacing: 0.04em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--marca-acento) 35%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--marca-principal);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  /* Deja lugar para la barra fija al saltar a una sección */
+  section[id] {
+    scroll-margin-top: 6rem;
+  }
+}
+
+@utility contenedor {
+  @apply mx-auto w-full max-w-[84rem] px-5 sm:px-8 lg:px-10;
+}
+
+@utility seccion {
+  @apply py-20 sm:py-24 lg:py-32;
+}
+
+@utility etiqueta {
+  @apply inline-flex items-center gap-2 text-[0.8125rem] font-semibold tracking-[0.08em] text-principal uppercase;
+  &::before {
+    content: '';
+    @apply size-1.5 rounded-full bg-acento;
+  }
+}
+
+@utility titulo-seccion {
+  @apply text-[2.125rem] leading-[1.05] font-extrabold tracking-[-0.035em] sm:text-5xl lg:text-[3.5rem];
+}
+
+@utility boton {
+  @apply inline-flex min-h-13 items-center justify-center gap-2.5 rounded-full px-6 text-[0.9375rem] font-semibold transition duration-300 ease-suave select-none active:scale-[0.98];
+}
+
+@utility boton-principal {
+  @apply boton bg-principal text-sobre-principal shadow-[0_12px_30px_-12px_var(--marca-principal)] hover:-translate-y-0.5 hover:bg-principal-oscuro;
+}
+
+@utility boton-secundario {
+  @apply boton border border-tinta/15 bg-white/60 text-tinta hover:border-tinta/40 hover:bg-white;
+}
+
+/* Textura de huellitas: se usa como fondo decorativo (toma el color del texto) */
+@utility huellitas {
+  background-color: currentColor;
+  -webkit-mask: url('/img/huellitas.svg') repeat;
+  mask: url('/img/huellitas.svg') repeat;
+  -webkit-mask-size: 280px;
+  mask-size: 280px;
+}
+
+/* Grano sutil para que los bloques de color no se vean planos */
+@utility grano {
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: url('/img/grano.webp');
+    background-size: 128px;
+    opacity: 0.5;
+    border-radius: inherit;
+  }
+}
+
+/* Puntito que "late" (usa el color del texto: text-exito, text-acento…) */
+@utility latido {
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    animation: latido 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+}
+
+/* Dos secciones seguidas con el mismo fondo no duplican el espacio entre ellas */
+.seccion + .seccion {
+  padding-top: 0;
+}
+
+/* ── Aparición al hacer scroll (solo si hay JS y el usuario no pidió menos movimiento) ── */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-aparecer] {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.9s var(--ease-suave),
+      transform 0.9s var(--ease-suave);
+    transition-delay: calc(var(--orden, 0) * 90ms);
+  }
+  .js [data-aparecer].visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
