@@ -1,10 +1,10 @@
 ---
 import { negocio } from '../data/negocio';
-import { linkWhatsApp } from '../lib/utilidades';
+import { atributosContacto } from '../lib/utilidades';
 import Icono from './Icono.astro';
 import Logo from './Logo.astro';
 
-const { contacto, servicios, equipo, faq, modoDemo } = negocio;
+const { contacto, servicios, equipo, faq } = negocio;
 
 // El menú solo muestra las secciones que tienen contenido
 const enlaces = [
@@ -17,10 +17,7 @@ const enlaces = [
 
 <div
   id="barra"
-  class:list={[
-    'sticky z-40 transition-transform duration-500 ease-suave [&.oculta]:-translate-y-[calc(100%+1rem)]',
-    modoDemo ? 'top-9' : 'top-0',
-  ]}
+  class="barra sticky top-0 z-40 transition-transform duration-500 ease-suave [&.oculta]:-translate-y-[calc(100%+1rem)]"
 >
   <nav class="contenedor pt-3" aria-label="Principal">
     <div
@@ -45,9 +42,7 @@ const enlaces = [
 
       <div class="flex items-center gap-2">
         <a
-          href={linkWhatsApp(contacto.whatsapp, contacto.mensajeWhatsapp)}
-          target="_blank"
-          rel="noopener"
+          {...atributosContacto(negocio, { mensaje: contacto.mensajeWhatsapp })}
           class="boton-principal min-h-11 px-4 text-sm whitespace-nowrap sm:px-5"
         >
           <Icono nombre="chat" class="hidden size-4.5 min-[420px]:block" trazo={2} />
@@ -88,9 +83,7 @@ const enlaces = [
       }
     </ul>
     <a
-      href={linkWhatsApp(contacto.whatsapp, contacto.mensajeWhatsapp)}
-      target="_blank"
-      rel="noopener"
+      {...atributosContacto(negocio, { mensaje: contacto.mensajeWhatsapp })}
       class="boton-principal mt-2 w-full"
     >
       <Icono nombre="chat" class="size-5" trazo={2} />
@@ -100,6 +93,12 @@ const enlaces = [
 </div>
 
 <style>
+  /* En pantallas grandes, con el banner de demo fijo arriba, la barra va debajo */
+  @media (min-width: 80rem) {
+    :global(html.con-banner:not(.banner-cerrado)) .barra {
+      top: 3.25rem;
+    }
+  }
   .menu-movil {
     position: fixed;
     inset: auto 0 auto 0;

@@ -6,6 +6,11 @@ import { direccionCompleta, textoSobre } from '../lib/utilidades';
 
 const { marca, contacto, horarios, seo, redes } = negocio;
 
+// Web de un cliente real sin WhatsApp cargado: mejor frenar el build que publicar botones rotos
+if (!negocio.modoDemo && !contacto.whatsapp.replace(/\D/g, '')) {
+  throw new Error('Falta contacto.whatsapp en negocio.ts (con modoDemo: false los botones usan ese número).');
+}
+
 const colores = {
   principal: marca.colores.principal,
   acento: marca.colores.acento,
@@ -27,6 +32,9 @@ const variables = [
 
 const url = new URL(Astro.url.pathname, Astro.site);
 const imagenOg = new URL(seo.imagenOg || '/og.jpg', Astro.site);
+
+// Perfil real (no un link vacío o a la portada de la red social)
+const esPerfil = (url: string) => /^https?:\/\/[^/]+\/.+/.test(url);
 
 const DIAS_SCHEMA: Record<string, string> = {
   Lunes: 'Monday',
@@ -73,18 +81,23 @@ const jsonLd = {
       closes: f.hasta,
     })),
   ),
-  sameAs: redes.map((r) => r.url),
+  // Solo perfiles reales (se descartan links vacíos o a la portada de la red)
+  sameAs: redes.some((r) => esPerfil(r.url)) ? redes.map((r) => r.url).filter(esPerfil) : undefined,
   areaServed: contacto.direccion.localidad,
 };
 ---
 
 <!doctype html>
-<html lang="es-AR" style={variables}>
+<html lang="es-AR" style={variables} class:list={[negocio.modoDemo && 'con-banner']}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <script is:inline>
       document.documentElement.classList.add('js');
+      try {
+        // El banner de demo cerrado se recuerda durante la visita
+        if (sessionStorage.getItem('banner-demo-cerrado')) document.documentElement.classList.add('banner-cerrado');
+      } catch {}
     </script>
     <title>{seo.titulo}</title>
     <meta name="description" content={seo.descripcion} />

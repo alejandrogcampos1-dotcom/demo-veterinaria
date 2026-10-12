@@ -7,6 +7,54 @@ export function linkWhatsApp(numero: string, mensaje?: string): string {
   return `https://wa.me/${limpio}${texto}`;
 }
 
+/** Años desde la apertura (se calcula al publicar la web). */
+export function aniosDesde(desde?: number): number {
+  return desde ? new Date().getFullYear() - desde : 0;
+}
+
+/** Reemplaza {anios} y {desde} en todos los textos de negocio.ts. */
+export function completarAnios(datos: Negocio): Negocio {
+  const { desde } = datos.marca;
+  if (!desde) return datos;
+  const anios = String(aniosDesde(desde));
+  const recorrer = (valor: unknown): unknown => {
+    if (typeof valor === 'string') return valor.replaceAll('{anios}', anios).replaceAll('{desde}', String(desde));
+    if (Array.isArray(valor)) return valor.map(recorrer);
+    if (valor && typeof valor === 'object') {
+      return Object.fromEntries(Object.entries(valor).map(([clave, v]) => [clave, recorrer(v)]));
+    }
+    return valor;
+  };
+  return recorrer(datos) as Negocio;
+}
+
+/**
+ * Atributos para cualquier botón de contacto del negocio (WhatsApp, teléfono, mail).
+ * Con modoDemo: true el botón abre el cartel de demo (y sin JavaScript, el WhatsApp del vendedor).
+ */
+export function atributosContacto(
+  negocio: Negocio,
+  destino: { mensaje?: string } | { href: string },
+): Record<string, string> {
+  if (negocio.modoDemo) {
+    const { vendedor } = negocio;
+    return {
+      href: linkWhatsApp(vendedor.whatsapp, vendedor.mensaje),
+      target: '_blank',
+      rel: 'noopener',
+      'data-demo': '',
+      // El cartel muestra cómo le llegaría este mensaje al negocio
+      'data-mensaje': 'href' in destino ? '' : destino.mensaje || negocio.contacto.mensajeWhatsapp,
+    };
+  }
+  if ('href' in destino) return { href: destino.href };
+  return {
+    href: linkWhatsApp(negocio.contacto.whatsapp, destino.mensaje || negocio.contacto.mensajeWhatsapp),
+    target: '_blank',
+    rel: 'noopener',
+  };
+}
+
 /** Mensaje de WhatsApp para un servicio: usa el del servicio o lo arma con el título. */
 export function mensajeServicio(titulo: string, mensaje?: string): string {
   return mensaje?.trim() || `Hola! Quiero consultar por ${titulo.toLowerCase()}.`;

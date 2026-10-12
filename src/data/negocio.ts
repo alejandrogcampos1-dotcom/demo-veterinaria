@@ -1,19 +1,40 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  TODO EL CONTENIDO DE LA WEB ESTÁ EN ESTE ARCHIVO.
 //  Para hacer la web de un cliente nuevo, cambiá estos datos y las fotos de
-//  public/img. Si dejás una lista vacía (equipo, galería, FAQ…), esa sección
-//  desaparece sola.
+//  src/assets/img. Si dejás una lista vacía (equipo, galería, FAQ, reseñas…),
+//  esa sección desaparece sola.
+//
+//  En cualquier texto podés escribir {anios} o {desde}: se completan solos con
+//  el año de apertura (marca.desde). Ej: '+{anios} años en Quilmes'.
 // ─────────────────────────────────────────────────────────────────────────────
+import { completarAnios } from '../lib/utilidades';
 import type { Negocio } from './tipos';
 
-export const negocio: Negocio = {
-  // Banner "Esto es una demo". Para las webs de clientes reales poné false.
+const datos: Negocio = {
+  // true = web de muestra (banner de demo y botones que llevan a tu WhatsApp).
+  // Para las webs de clientes reales poné false.
   modoDemo: true,
+
+  // Vos, quien vende la web: banner, cartel de demo y crédito del pie.
+  vendedor: {
+    nombre: '[pogoo]',
+    whatsapp: '5491121554103',
+    mensaje: 'Hola! Vi la demo de la web para veterinarias y quiero una para mi negocio.',
+  },
+
+  // Textos que solo se ven con modoDemo: true
   demo: {
-    texto: 'Esto es una demo.',
-    textoLink: '¿Querés tu web así? Escribime',
-    whatsapp: '5491100000000', // ← TU número de WhatsApp
-    mensaje: 'Hola! Vi la demo de la veterinaria y quiero una web así para mi negocio.',
+    banner: {
+      texto: 'Esta es una web de ejemplo. ¿Querés una igual para tu veterinaria? Te armo una demo gratis con tus datos',
+      boton: 'Quiero la mía',
+    },
+    cartel: {
+      texto:
+        'En tu web, este botón le abre WhatsApp a tu cliente con el mensaje ya escrito y te llegan los turnos directo. ¿Querés una así?',
+      botonSi: 'Quiero mi web',
+      botonNo: 'Seguir mirando',
+    },
+    avisoResenas: 'Acá van a aparecer tus reseñas reales de Google',
   },
 
   marca: {
@@ -33,8 +54,8 @@ export const negocio: Negocio = {
   },
 
   contacto: {
-    // En la demo apunta a tu número para que el cliente pruebe el botón de verdad
-    whatsapp: '5491100000000',
+    // WhatsApp del negocio. En modo demo no se usa: los botones abren el cartel de demo.
+    whatsapp: '',
     mensajeWhatsapp: 'Hola! Quería pedir un turno para mi mascota.',
     telefono: '011 4253-1240',
     telefonoLink: '+541142531240',
@@ -65,24 +86,24 @@ export const negocio: Negocio = {
   },
 
   hero: {
-    etiqueta: 'Veterinaria de barrio desde 2014',
+    etiqueta: 'Veterinaria de barrio desde {desde}',
     titulo: 'Cuidamos a tu familia de cuatro patas en Quilmes',
     destacado: 'cuatro patas',
     subtitulo:
       'Clínica, vacunas, cirugía, peluquería y urgencias 24 h en un solo lugar. Con turnos que se respetan y tiempo para escucharte.',
     imagen: {
-      src: '/img/hero-perro.webp',
+      src: 'hero-perro.webp',
       alt: 'Golden retriever sonriente sentado junto a una ventana luminosa',
     },
     imagenTitulo: {
-      src: '/img/titulo-gato.webp',
+      src: 'titulo-gato.webp',
       alt: '',
     },
     botonPrincipal: 'Pedir turno por WhatsApp',
     botonSecundario: 'Ver servicios',
     datos: [
       { icono: 'sirena', titulo: 'Urgencias 24 h', texto: 'Todos los días del año' },
-      { icono: 'casa', titulo: '+10 años en Quilmes', texto: 'Más de 4.000 pacientes' },
+      { icono: 'casa', titulo: '+{anios} años en Quilmes', texto: 'Más de 4.000 pacientes' },
       { icono: 'calendario', titulo: 'Atención con turno', texto: 'Sin esperas largas' },
     ],
   },
@@ -140,9 +161,9 @@ export const negocio: Negocio = {
   porQue: {
     etiqueta: 'Por qué elegirnos',
     titulo: 'Una veterinaria de barrio, con todo lo de una clínica grande',
-    texto: 'Hace más de diez años que atendemos a las mascotas de Quilmes. Muchas familias vienen desde el primer cachorro.',
+    texto: 'Hace más de {anios} años que atendemos a las mascotas de Quilmes. Muchas familias vienen desde el primer cachorro.',
     imagen: {
-      src: '/img/por-que.webp',
+      src: 'por-que.webp',
       alt: 'Veterinaria revisando a un beagle tranquilo sobre la camilla mientras su dueño lo acaricia',
     },
     items: [
@@ -178,19 +199,19 @@ export const negocio: Negocio = {
         nombre: 'Dra. Lucía Ferreyra',
         especialidad: 'Clínica general y prevención',
         frase: 'Una buena consulta empieza por escuchar a la familia.',
-        foto: { src: '/img/equipo-lucia.webp', alt: 'Retrato de la doctora Lucía Ferreyra con ambo verde' },
+        foto: { src: 'equipo-lucia.webp', alt: 'Retrato de la doctora Lucía Ferreyra con ambo verde' },
       },
       {
         nombre: 'Dr. Martín Arce',
         especialidad: 'Cirugía y traumatología',
         frase: 'Explico cada cirugía con calma. Un dueño tranquilo ayuda a una mejor recuperación.',
-        foto: { src: '/img/equipo-martin.webp', alt: 'Retrato del doctor Martín Arce con ambo verde' },
+        foto: { src: 'equipo-martin.webp', alt: 'Retrato del doctor Martín Arce con ambo verde' },
       },
       {
         nombre: 'Dra. Sofía Benítez',
         especialidad: 'Felinos y dermatología',
         frase: 'Los gatos tienen sus tiempos. Los atiendo sin apuro y con mucha paciencia.',
-        foto: { src: '/img/equipo-sofia.webp', alt: 'Retrato de la doctora Sofía Benítez con un gato atigrado en brazos' },
+        foto: { src: 'equipo-sofia.webp', alt: 'Retrato de la doctora Sofía Benítez con un gato atigrado en brazos' },
       },
     ],
   },
@@ -200,12 +221,12 @@ export const negocio: Negocio = {
     titulo: 'Así es un día en Patitas',
     texto: 'Un lugar luminoso y tranquilo, pensado para que tu mascota llegue sin miedo.',
     items: [
-      { src: '/img/galeria-recepcion.webp', alt: 'Recepción de la veterinaria con mostrador de madera y plantas' },
-      { src: '/img/galeria-gato.webp', alt: 'Gato naranja durmiendo sobre una manta tejida al sol' },
-      { src: '/img/galeria-peluqueria.webp', alt: 'Perrito blanco recién bañado envuelto en una toalla en la peluquería' },
-      { src: '/img/galeria-cachorro.webp', alt: 'Manos de una veterinaria sosteniendo a un cachorro durante el control' },
-      { src: '/img/galeria-petshop.webp', alt: 'Estante del pet shop con juguetes, correas y alimentos' },
-      { src: '/img/galeria-paseo.webp', alt: 'Perro feliz paseando con correa por una vereda arbolada' },
+      { src: 'galeria-recepcion.webp', alt: 'Recepción de la veterinaria con mostrador de madera y plantas' },
+      { src: 'galeria-gato.webp', alt: 'Gato naranja durmiendo sobre una manta tejida al sol' },
+      { src: 'galeria-peluqueria.webp', alt: 'Perrito blanco recién bañado envuelto en una toalla en la peluquería' },
+      { src: 'galeria-cachorro.webp', alt: 'Manos de una veterinaria sosteniendo a un cachorro durante el control' },
+      { src: 'galeria-petshop.webp', alt: 'Estante del pet shop con juguetes, correas y alimentos' },
+      { src: 'galeria-paseo.webp', alt: 'Perro feliz paseando con correa por una vereda arbolada' },
     ],
   },
 
@@ -254,10 +275,16 @@ export const negocio: Negocio = {
     ],
   },
 
-  // Solo reseñas reales. Mientras la lista esté vacía, la sección no aparece.
+  // Solo reseñas REALES copiadas de Google. Mientras la lista esté vacía, la sección
+  // no aparece (en modo demo se ve un bloque punteado que marca el lugar).
+  // Formato: { autor: 'Nombre', puntaje: 5, texto: '...', fecha: 'hace 2 semanas' }
   resenas: {
     etiqueta: 'Reseñas',
-    titulo: 'Lo que dicen las familias',
+    titulo: 'Lo que dicen en Google',
+    promedio: undefined, // ej: 4.8
+    total: undefined, // ej: 127
+    urlGoogle: '', // link a la ficha de Google del negocio
+    textoBoton: 'Ver todas en Google',
     items: [],
   },
 
@@ -265,7 +292,7 @@ export const negocio: Negocio = {
     titulo: '¿Tu mascota necesita atención?',
     texto: 'Escribinos y te damos turno hoy.',
     boton: 'Escribinos por WhatsApp',
-    imagen: { src: '/img/cta-perro.webp', alt: 'Perro mestizo mirando hacia arriba con las orejas paradas' },
+    imagen: { src: 'cta-perro.webp', alt: 'Perro mestizo mirando hacia arriba con las orejas paradas' },
   },
 
   redes: [
@@ -275,11 +302,8 @@ export const negocio: Negocio = {
 
   footer: {
     descripcion: 'Clínica veterinaria en Quilmes. Consultas, cirugías, peluquería y urgencias 24 h.',
-    credito: {
-      texto: 'Web hecha por',
-      nombre: 'Tu Marca', // ← tu marca
-      url: 'https://wa.me/5491100000000', // ← tu WhatsApp o tu web
-    },
+    // Crédito "Web hecha por …" con el nombre y el WhatsApp de `vendedor`. Vacío = sin crédito.
+    textoCredito: 'Web hecha por',
   },
 
   seo: {
@@ -290,3 +314,5 @@ export const negocio: Negocio = {
     url: '',
   },
 };
+
+export const negocio = completarAnios(datos);

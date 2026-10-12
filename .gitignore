@@ -16,5 +16,5 @@ npm-debug.log*
 .DS_Store
 .vercel
 
-# fotos originales sin optimizar (ver README)
+# fotos originales locales (no se suben)
 fotos/

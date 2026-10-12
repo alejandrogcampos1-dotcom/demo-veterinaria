@@ -1,9 +1,9 @@
 ---
 import { negocio } from '../data/negocio';
-import { linkWhatsApp } from '../lib/utilidades';
+import { atributosContacto } from '../lib/utilidades';
 import Icono from './Icono.astro';
 
-const { faq, contacto } = negocio;
+const { faq } = negocio;
 ---
 
 {
@@ -18,9 +18,7 @@ const { faq, contacto } = negocio;
             </h2>
             {faq.texto && <p class="mt-6 max-w-sm text-[1.0625rem] leading-relaxed text-suave">{faq.texto}</p>}
             <a
-              href={linkWhatsApp(contacto.whatsapp, 'Hola! Tengo una consulta.')}
-              target="_blank"
-              rel="noopener"
+              {...atributosContacto(negocio, { mensaje: 'Hola! Tengo una consulta.' })}
               class="boton-secundario mt-8"
             >
               <Icono nombre="chat" class="size-4.5 text-principal" trazo={2} />

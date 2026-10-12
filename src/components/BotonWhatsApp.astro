@@ -1,23 +1,22 @@
 ---
-// Botón flotante de WhatsApp con un globito que aparece a los pocos segundos
+// Botón flotante de contacto con un globito que aparece a los 4 segundos.
+// Respeta el área segura del celular. En modo demo abre el cartel de demo.
 import { negocio } from '../data/negocio';
-import { linkWhatsApp } from '../lib/utilidades';
+import { atributosContacto } from '../lib/utilidades';
 import Icono from './Icono.astro';
 
-const { contacto } = negocio;
+const contacto = atributosContacto(negocio, { mensaje: negocio.contacto.mensajeWhatsapp });
 ---
 
-<div class="fixed right-4 bottom-4 z-40 flex items-end gap-3 sm:right-6 sm:bottom-6">
+<div class="flotante fixed z-40 flex items-end gap-3">
   <div
     id="globo-ayuda"
-    class="globo relative mb-2 hidden items-center gap-1 rounded-2xl rounded-br-md bg-white py-2.5 pr-2 pl-4 text-[0.9375rem] font-semibold shadow-[0_18px_40px_-14px_rgba(15,23,42,0.45)] ring-1 ring-tinta/[0.06]"
+    class="globo relative mb-2 hidden items-center gap-1 rounded-2xl rounded-br-md bg-white py-1.5 pr-1.5 pl-4 text-[0.9375rem] font-semibold shadow-[0_18px_40px_-14px_rgba(15,23,42,0.45)] ring-1 ring-tinta/[0.06]"
   >
-    <a href={linkWhatsApp(contacto.whatsapp, contacto.mensajeWhatsapp)} target="_blank" rel="noopener">
-      ¿Te ayudamos?
-    </a>
+    <a {...contacto} class="py-1">¿Te ayudamos?</a>
     <button
       type="button"
-      class="cerrar grid size-8 place-items-center rounded-full text-suave transition hover:bg-tinta/[0.05] hover:text-tinta"
+      class="cerrar grid size-9 place-items-center rounded-full text-suave transition hover:bg-tinta/[0.05] hover:text-tinta"
       aria-label="Cerrar mensaje"
     >
       <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true">
@@ -27,9 +26,7 @@ const { contacto } = negocio;
   </div>
 
   <a
-    href={linkWhatsApp(contacto.whatsapp, contacto.mensajeWhatsapp)}
-    target="_blank"
-    rel="noopener"
+    {...contacto}
     class="group relative grid size-15 place-items-center rounded-full bg-exito text-white shadow-[0_16px_36px_-10px_var(--marca-exito)] transition duration-300 ease-suave hover:scale-105"
     aria-label="Escribinos por WhatsApp"
   >
@@ -40,6 +37,17 @@ const { contacto } = negocio;
 </div>
 
 <style>
+  /* Respeta el área segura del celular (barra de gestos, notch) */
+  .flotante {
+    right: calc(1rem + env(safe-area-inset-right));
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  @media (min-width: 640px) {
+    .flotante {
+      right: calc(1.5rem + env(safe-area-inset-right));
+      bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    }
+  }
   .globo.visible {
     display: flex;
     animation: entrar-globo 0.6s var(--ease-suave) both;

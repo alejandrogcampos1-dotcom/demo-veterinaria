@@ -138,8 +138,13 @@ const datosHorarios = {
       // En el chip de arriba, si está cerrado pero hay guardia, mostramos la guardia
       const guardia = corto && !estado.abierto && datos.urgencias;
       el.dataset.abierto = String(estado.abierto);
-      if (texto) texto.textContent = estado.abierto ? 'Abierto ahora' : guardia ? 'Guardia 24 h' : 'Cerrado ahora';
+      if (texto) texto.textContent = estado.abierto ? 'Abierto ahora' : guardia ? 'Guardia 24 h disponible' : 'Cerrado';
       if (detalle) detalle.textContent = estado.detalle ? `· ${estado.detalle}` : '';
+    });
+
+    // Aviso de guardia: solo cuando está cerrado y el negocio tiene urgencias 24 h
+    document.querySelectorAll<HTMLElement>('[data-guardia]').forEach((el) => {
+      el.hidden = estado.abierto || !datos.urgencias;
     });
   }
 

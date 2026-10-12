@@ -2,11 +2,11 @@
 import { negocio } from '../data/negocio';
 import type { TipoRed } from '../data/tipos';
 import type { NombreIcono } from '../lib/iconos';
-import { linkWhatsApp, resumenHorarios } from '../lib/utilidades';
+import { atributosContacto, linkWhatsApp, resumenHorarios } from '../lib/utilidades';
 import Icono from './Icono.astro';
 import Logo from './Logo.astro';
 
-const { marca, contacto, horarios, redes, footer } = negocio;
+const { marca, contacto, horarios, redes, footer, vendedor } = negocio;
 const resumen = resumenHorarios(horarios.dias);
 const anio = new Date().getFullYear();
 
@@ -20,15 +20,13 @@ const iconoRed: Record<TipoRed, NombreIcono> = {
 ---
 
 <footer class="relative overflow-hidden bg-tinta text-fondo">
-  <div class="contenedor relative pt-20 pb-10 sm:pt-24">
+  <div class="contenedor relative pt-20 pb-28 sm:pt-24 sm:pb-24">
     <div class="grid gap-12 sm:grid-cols-2 lg:grid-cols-12 lg:gap-10">
       <div class="sm:col-span-2 lg:col-span-3">
         <Logo variante="claro" />
         <p class="mt-6 max-w-xs leading-relaxed text-fondo/75">{footer.descripcion}</p>
         <a
-          href={linkWhatsApp(contacto.whatsapp, contacto.mensajeWhatsapp)}
-          target="_blank"
-          rel="noopener"
+          {...atributosContacto(negocio, { mensaje: contacto.mensajeWhatsapp })}
           class="boton mt-8 min-h-12 bg-fondo px-5 text-sm text-tinta hover:-translate-y-0.5 hover:bg-white"
         >
           <Icono nombre="chat" class="size-4.5" trazo={2} />
@@ -48,7 +46,7 @@ const iconoRed: Record<TipoRed, NombreIcono> = {
             </span>
           </li>
           <li>
-            <a href={`tel:${contacto.telefonoLink}`} class="flex gap-3 transition hover:text-acento">
+            <a {...atributosContacto(negocio, { href: `tel:${contacto.telefonoLink}` })} class="flex gap-3 transition hover:text-acento">
               <Icono nombre="telefono" class="mt-0.5 size-4.5 shrink-0 text-acento" />
               {contacto.telefono}
             </a>
@@ -56,7 +54,7 @@ const iconoRed: Record<TipoRed, NombreIcono> = {
           {
             contacto.email && (
               <li>
-                <a href={`mailto:${contacto.email}`} class="flex gap-3 break-all transition hover:text-acento">
+                <a {...atributosContacto(negocio, { href: `mailto:${contacto.email}` })} class="flex gap-3 break-all transition hover:text-acento">
                   <Icono nombre="email" class="mt-0.5 size-4.5 shrink-0 text-acento" />
                   {contacto.email}
                 </a>
@@ -126,17 +124,21 @@ const iconoRed: Record<TipoRed, NombreIcono> = {
 
     <div class="mt-6 flex flex-col gap-3 border-t border-fondo/10 pt-8 text-sm text-fondo/75 sm:flex-row sm:items-center sm:justify-between">
       <p>© {anio} {marca.nombre}. Todos los derechos reservados.</p>
-      <p>
-        {footer.credito.texto}{' '}
-        <a
-          href={footer.credito.url}
-          target="_blank"
-          rel="noopener"
-          class="font-semibold text-fondo underline decoration-fondo/30 underline-offset-4 transition hover:decoration-fondo"
-        >
-          {footer.credito.nombre}
-        </a>
-      </p>
+      {
+        footer.textoCredito && (
+          <p>
+            {footer.textoCredito}{' '}
+            <a
+              href={linkWhatsApp(vendedor.whatsapp, vendedor.mensaje)}
+              target="_blank"
+              rel="noopener"
+              class="font-semibold text-fondo underline decoration-fondo/30 underline-offset-4 transition hover:decoration-fondo"
+            >
+              {vendedor.nombre}
+            </a>
+          </p>
+        )
+      }
     </div>
   </div>
 </footer>

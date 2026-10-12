@@ -1,30 +1,52 @@
 ---
-// Barra fina que avisa que es una demo. Se apaga con modoDemo: false en negocio.ts
+// Banner de venta: solo con modoDemo: true. Se puede cerrar (se recuerda durante la visita).
+// En celular va dentro de la página (no tapa nada); en pantallas grandes queda fijo arriba.
 import { negocio } from '../data/negocio';
 import { linkWhatsApp } from '../lib/utilidades';
 import Icono from './Icono.astro';
 
-const { demo } = negocio;
+const { demo, vendedor } = negocio;
 ---
 
 {
   negocio.modoDemo && (
-    <div class="sticky top-0 z-50 bg-tinta text-fondo">
-      <div class="contenedor flex h-9 items-center justify-center gap-2.5 text-[0.8125rem]">
-        <span class="rounded-full bg-acento px-2 py-0.5 text-[0.625rem] leading-none font-bold tracking-[0.12em] text-sobre-acento uppercase">
-          Demo
-        </span>
-        <span class="hidden text-fondo/80 sm:inline">{demo.texto}</span>
+    <div id="banner-demo" class="relative z-50 bg-tinta text-fondo xl:sticky xl:top-0 xl:h-13">
+      <div class="contenedor flex flex-wrap items-center gap-x-5 gap-y-3 py-3.5 pr-14 xl:h-full xl:flex-nowrap xl:justify-center xl:py-0 xl:pr-16">
+        <p class="flex items-start gap-2.5 text-[0.8125rem] leading-snug text-fondo/90 sm:text-sm xl:items-center">
+          <span class="mt-px shrink-0 rounded-full bg-acento px-2 py-0.5 text-[0.625rem] font-bold tracking-[0.12em] text-sobre-acento uppercase xl:mt-0">
+            Demo
+          </span>
+          <span>{demo.banner.texto}</span>
+        </p>
         <a
-          href={linkWhatsApp(demo.whatsapp, demo.mensaje)}
+          href={linkWhatsApp(vendedor.whatsapp, vendedor.mensaje)}
           target="_blank"
           rel="noopener"
-          class="group inline-flex items-center gap-1 font-semibold underline decoration-fondo/30 underline-offset-4 transition hover:decoration-fondo"
+          class="group inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full bg-acento px-4 text-sm font-bold text-sobre-acento shadow-[0_8px_24px_-10px_var(--marca-acento)] transition hover:-translate-y-px hover:brightness-105"
         >
-          {demo.textoLink}
-          <Icono nombre="flecha" class="size-3.5 transition group-hover:translate-x-0.5" trazo={2.25} />
+          <Icono nombre="chat" class="size-4" trazo={2.25} />
+          {demo.banner.boton}
+          <Icono nombre="flecha" class="size-4 transition group-hover:translate-x-0.5" trazo={2.25} />
         </a>
       </div>
+      <button
+        type="button"
+        class="cerrar-banner absolute top-2 right-2 grid size-10 place-items-center rounded-full text-fondo/80 transition hover:bg-fondo/10 hover:text-fondo xl:top-1.5"
+        aria-label="Cerrar aviso de demo"
+      >
+        <svg viewBox="0 0 24 24" class="size-4.5" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
     </div>
   )
 }
+
+<script>
+  document.querySelector('#banner-demo .cerrar-banner')?.addEventListener('click', () => {
+    document.documentElement.classList.add('banner-cerrado');
+    try {
+      sessionStorage.setItem('banner-demo-cerrado', '1');
+    } catch {}
+  });
+</script>

@@ -30,7 +30,7 @@ export const GET: APIRoute = async () => {
   const sobreAcento = textoSobre(c.acento, c.texto);
 
   // Foto principal en JPEG (lo que entiende el renderizador)
-  const foto = await sharp(join(process.cwd(), 'public', hero.imagen.src))
+  const foto = await sharp(join(process.cwd(), 'src', 'assets', 'img', hero.imagen.src))
     .resize(560, 700, { fit: 'cover', position: 'centre' })
     .jpeg({ quality: 85 })
     .toBuffer();

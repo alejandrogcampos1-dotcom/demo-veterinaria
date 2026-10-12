@@ -1,0 +1,146 @@
+---
+// Cartel que aparece al tocar cualquier botón de contacto con modoDemo: true.
+// En celular sube desde abajo (bottom sheet); en pantallas grandes es un modal centrado.
+import { negocio } from '../data/negocio';
+import { linkWhatsApp } from '../lib/utilidades';
+import Icono from './Icono.astro';
+
+const { demo, vendedor, marca } = negocio;
+---
+
+{
+  negocio.modoDemo && (
+    <dialog id="cartel-demo" class="cartel text-tinta" aria-labelledby="cartel-demo-texto">
+      <div class="relative rounded-t-[1.75rem] bg-fondo px-6 pt-3 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:rounded-[2rem] sm:p-8">
+        <span class="mx-auto mb-5 block h-1.5 w-11 rounded-full bg-tinta/15 sm:hidden" aria-hidden="true" />
+
+        <form method="dialog" class="absolute top-3 right-3 sm:top-4 sm:right-4">
+          <button
+            class="grid size-10 place-items-center rounded-full text-suave transition hover:bg-tinta/[0.06] hover:text-tinta"
+            aria-label="Cerrar"
+          >
+            <svg viewBox="0 0 24 24" class="size-4.5" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </form>
+
+        <!-- Vista previa de cómo le llega el mensaje al negocio -->
+        <div class="vista-previa mb-6 rounded-2xl bg-principal/[0.07] p-4 pr-12 sm:pr-4" aria-hidden="true">
+          <p class="flex items-center gap-2 text-xs font-semibold text-suave">
+            <span class="grid size-6 place-items-center rounded-full bg-exito text-white">
+              <Icono nombre="chat" class="size-3.5" trazo={2.25} />
+            </span>
+            Así le llega a {marca.nombreCorto || marca.nombre}
+          </p>
+          <p class="mensaje mt-3 ml-auto w-fit max-w-[90%] rounded-2xl rounded-tr-md bg-white px-4 py-2.5 text-[0.9375rem] shadow-[0_2px_8px_-4px_rgba(15,23,42,0.25)]" />
+        </div>
+
+        <p id="cartel-demo-texto" class="font-display text-[1.3125rem] leading-snug font-bold tracking-[-0.02em] text-balance sm:text-2xl">
+          {demo.cartel.texto}
+        </p>
+
+        <div class="mt-7 flex flex-col gap-2.5">
+          <a
+            href={linkWhatsApp(vendedor.whatsapp, vendedor.mensaje)}
+            target="_blank"
+            rel="noopener"
+            class="boton-principal text-base"
+          >
+            <Icono nombre="chat" class="size-5" trazo={2} />
+            {demo.cartel.botonSi}
+          </a>
+          <form method="dialog">
+            <button class="boton-secundario w-full text-base">{demo.cartel.botonNo}</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+  )
+}
+
+<style>
+  .cartel {
+    margin: auto auto 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 92dvh;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: visible;
+    transition:
+      transform 0.45s var(--ease-suave),
+      opacity 0.3s,
+      display 0.45s allow-discrete,
+      overlay 0.45s allow-discrete;
+    transform: translateY(100%);
+  }
+  .cartel[open] {
+    transform: none;
+  }
+  @starting-style {
+    .cartel[open] {
+      transform: translateY(100%);
+    }
+  }
+  .cartel::backdrop {
+    background: rgb(15 23 42 / 0);
+    transition:
+      background 0.3s,
+      display 0.3s allow-discrete,
+      overlay 0.3s allow-discrete;
+  }
+  .cartel[open]::backdrop {
+    background: rgb(15 23 42 / 0.5);
+  }
+  @starting-style {
+    .cartel[open]::backdrop {
+      background: rgb(15 23 42 / 0);
+    }
+  }
+
+  @media (min-width: 640px) {
+    .cartel {
+      margin: auto;
+      max-width: 28rem;
+      transform: translateY(12px) scale(0.97);
+      opacity: 0;
+    }
+    .cartel[open] {
+      transform: none;
+      opacity: 1;
+    }
+    @starting-style {
+      .cartel[open] {
+        transform: translateY(12px) scale(0.97);
+        opacity: 0;
+      }
+    }
+  }
+</style>
+
+<script>
+  const cartel = document.getElementById('cartel-demo') as HTMLDialogElement | null;
+
+  if (cartel) {
+    const vistaPrevia = cartel.querySelector<HTMLElement>('.vista-previa');
+    const mensaje = cartel.querySelector<HTMLElement>('.mensaje');
+
+    // Cualquier botón de contacto del negocio abre el cartel en vez de salir de la página
+    document.addEventListener('click', (evento) => {
+      const boton = (evento.target as Element | null)?.closest<HTMLElement>('[data-demo]');
+      if (!boton) return;
+      evento.preventDefault();
+      const texto = boton.dataset.mensaje || '';
+      if (mensaje) mensaje.textContent = texto;
+      vistaPrevia?.classList.toggle('hidden', !texto);
+      cartel.showModal();
+    });
+
+    // Tocar afuera del cartel también lo cierra
+    cartel.addEventListener('click', (evento) => {
+      if (evento.target === cartel) cartel.close();
+    });
+  }
+</script>

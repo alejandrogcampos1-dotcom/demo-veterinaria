@@ -4,7 +4,7 @@ import type { NombreIcono } from '../lib/iconos';
 
 export type { NombreIcono };
 
-/** Una foto dentro de public/img. `src` empieza con /img/… */
+/** Una foto dentro de src/assets/img. `src` es el nombre del archivo, ej: 'hero-perro.webp' */
 export interface Foto {
   src: string;
   /** Texto alternativo: describí la foto como si se la contaras a alguien que no la ve. */
@@ -55,13 +55,14 @@ export interface Pregunta {
   respuesta: string;
 }
 
+/** Una reseña REAL copiada de la ficha de Google del negocio. */
 export interface Resena {
-  nombre: string;
-  /** Opcional, por ejemplo 'Dueña de Lola' */
-  detalle?: string;
-  texto: string;
+  autor: string;
   /** De 1 a 5 */
-  estrellas?: number;
+  puntaje: number;
+  texto: string;
+  /** Como figura en Google, ej: 'hace 2 semanas' o 'septiembre 2026' */
+  fecha: string;
 }
 
 export type TipoRed = 'instagram' | 'facebook' | 'tiktok' | 'otra';
@@ -82,14 +83,26 @@ export interface Encabezado {
 }
 
 export interface Negocio {
-  /** true = muestra el banner "Esto es una demo". Para clientes reales: false. */
+  /**
+   * true = web de muestra para vender: banner de demo, los botones de contacto abren un cartel
+   * que lleva a tu WhatsApp y se ve el lugar de las reseñas. Para clientes reales: false.
+   */
   modoDemo: boolean;
-  demo: {
-    texto: string;
-    textoLink: string;
-    /** Tu WhatsApp (el de quien vende la web), solo números con código de país. */
+
+  /** Quien vende la web (vos). Se usa en el banner, el cartel de demo y el crédito del pie. */
+  vendedor: {
+    nombre: string;
+    /** Solo números con código de país, ej: 5491112345678 */
     whatsapp: string;
     mensaje: string;
+  };
+
+  /** Textos que solo aparecen con modoDemo: true */
+  demo: {
+    banner: { texto: string; boton: string };
+    cartel: { texto: string; botonSi: string; botonNo: string };
+    /** Bloque punteado que marca dónde van las reseñas de Google */
+    avisoResenas: string;
   };
 
   marca: {
@@ -99,7 +112,10 @@ export interface Negocio {
     eslogan: string;
     /** Ruta a un logo propio (SVG o PNG en public/img). Vacío = logo automático con huellita. */
     logo?: string;
-    /** Año de apertura: se usa para datos estructurados. */
+    /**
+     * Año de apertura. Con esto se calculan los años en todos los textos: escribí {anios}
+     * (ej: '+{anios} años') o {desde} (ej: 'desde {desde}') y se completan solos.
+     */
     desde?: number;
     colores: {
       /** Color principal de la marca (botones, bloques de color) */
@@ -116,7 +132,10 @@ export interface Negocio {
   };
 
   contacto: {
-    /** Solo números con código de país y sin el 15. Ej: 5491123456789 */
+    /**
+     * WhatsApp del negocio: solo números con código de país y sin el 15. Ej: 5491123456789.
+     * Con modoDemo: true no se usa (los botones abren el cartel de demo).
+     */
     whatsapp: string;
     /** Mensaje por defecto al abrir WhatsApp */
     mensajeWhatsapp: string;
@@ -169,8 +188,20 @@ export interface Negocio {
   galeria: Encabezado & { items: Foto[] };
   ubicacion: Encabezado & { textoBoton: string };
   faq: Encabezado & { items: Pregunta[] };
-  /** Solo reseñas reales del cliente. Lista vacía = la sección no aparece. */
-  resenas: Encabezado & { items: Resena[] };
+  /**
+   * Reseñas REALES de Google, nunca inventadas. Lista vacía = la sección no aparece
+   * (en modo demo se ve un bloque punteado que marca el lugar).
+   */
+  resenas: Encabezado & {
+    /** Puntaje promedio de la ficha de Google, ej: 4.8 */
+    promedio?: number;
+    /** Cantidad total de reseñas en Google */
+    total?: number;
+    /** Link a la ficha de Google del negocio */
+    urlGoogle?: string;
+    textoBoton: string;
+    items: Resena[];
+  };
 
   cta: {
     titulo: string;
@@ -184,12 +215,8 @@ export interface Negocio {
 
   footer: {
     descripcion: string;
-    credito: {
-      texto: string;
-      nombre: string;
-      /** Link de tu marca (por ejemplo, tu WhatsApp). */
-      url: string;
-    };
+    /** Texto antes del nombre del vendedor, ej: 'Web hecha por'. Vacío = no se muestra el crédito. */
+    textoCredito: string;
   };
 
   seo: {

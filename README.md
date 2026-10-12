@@ -1,7 +1,7 @@
 # Demo veterinaria · plantilla de landing
 
 Landing para veterinarias y pet shops hecha con **Astro + Tailwind CSS**. Es un sitio estático, rápido
-(Lighthouse 97–100 en celular y 100 en escritorio) y listo para publicar en Vercel.
+(Lighthouse 95+ en celular) y listo para publicar en Vercel.
 
 **Todo el contenido está en un solo archivo: [`src/data/negocio.ts`](src/data/negocio.ts).**
 Ninguna sección tiene texto escrito a mano. Si dejás una lista vacía (equipo, galería, preguntas o reseñas),
@@ -14,16 +14,15 @@ esa sección desaparece sola y el menú se ajusta.
 1. **Copiá el proyecto.** En GitHub: *Use this template* (o duplicá el repo) con el nombre del cliente,
    por ejemplo `web-veterinaria-sanroque`. Clonalo y corré `npm install`.
 2. **Cargá sus datos en `src/data/negocio.ts`.** Nombre, eslogan, WhatsApp, teléfono, dirección,
-   coordenadas, horarios, servicios, equipo, preguntas y redes. Poné **`modoDemo: false`** para sacar
-   el banner de demo.
+   coordenadas, horarios, servicios, equipo, preguntas y redes. Poné **`modoDemo: false`**: se van el
+   banner y el cartel de demo, y todos los botones pasan a abrir el WhatsApp del negocio
+   (`contacto.whatsapp`; si queda vacío, el build avisa con un error).
 3. **Cambiá los colores.** En `marca.colores` alcanza con tocar 3 valores: `principal`, `acento` y
    `fondo`. El color de los textos sobre cada color se elige solo para que siempre se lea bien.
-4. **Poné las fotos.**
-   - Copiá las fotos originales del cliente (JPG, PNG o WebP, del tamaño que sean) a la carpeta `fotos/`.
-   - Corré `npm run fotos`: las convierte a WebP optimizado en `public/img/` (en 3 tamaños, para
-     celular y escritorio).
-   - En `negocio.ts` referencialas así: `src: '/img/nombre-de-la-foto.webp'`, con un `alt` que describa
-     la foto.
+4. **Poné las fotos.** Copiá las fotos del cliente (JPG, PNG o WebP, del tamaño que sean) a
+   `src/assets/img/` y en `negocio.ts` referencialas por el nombre del archivo:
+   `src: 'nombre-de-la-foto.jpg'`, con un `alt` que describa la foto. Al compilar, Astro las convierte
+   solo a AVIF y WebP en varios tamaños.
 5. **Revisala.** `npm run dev` y abrí http://localhost:4321 (probala también desde el celular).
 6. **Publicala en Vercel.** Subí los cambios a GitHub, entrá a [vercel.com/new](https://vercel.com/new),
    importá el repo y tocá **Deploy** (detecta Astro solo, no hay que configurar nada). Para usar su
@@ -41,13 +40,24 @@ esa sección desaparece sola y el menú se ajusta.
 | Bloque final | `cta.imagen` | PNG/WebP **con fondo transparente** (opcional) |
 
 La imagen que aparece al compartir el link por WhatsApp se arma sola con el nombre, el eslogan,
-los colores y la foto principal (`/og.jpg`). Si querés usar otra, ponela en `public/img` y cargala
+los colores y la foto principal (`/og.jpg`). Si querés usar otra, ponela en `public/` y cargá su ruta
 en `seo.imagenOg`.
+
+## Modo demo y datos del vendedor
+
+- `modoDemo: true` es la web de muestra para vender: banner "Esta es una web de ejemplo…" con botón
+  *Quiero la mía* (se puede cerrar), y todos los botones de contacto (WhatsApp, teléfono, mail) abren
+  un cartel que explica cómo funcionaría en la web del cliente y lleva a tu WhatsApp.
+- Tus datos están en el bloque `vendedor` (nombre, WhatsApp y mensaje). Se usan en el banner, el cartel
+  y el crédito "Web hecha por …" del pie. Los textos del banner y del cartel están en `demo`.
+- **Años automáticos:** en cualquier texto podés escribir `{anios}` o `{desde}` y se completan con
+  `marca.desde` (por ejemplo `'+{anios} años en Quilmes'`).
 
 ## Reglas importantes
 
-- **Reseñas:** solo reales y con permiso del cliente. Mientras `resenas.items` esté vacío, la sección
-  no aparece.
+- **Reseñas:** solo reales, copiadas de la ficha de Google del negocio (autor, puntaje, texto y fecha),
+  más el promedio, la cantidad total y el link a la ficha. Mientras `resenas.items` esté vacío, la
+  sección no aparece; en modo demo se ve un bloque punteado que marca el lugar.
 - **Íconos:** genéricos de [Lucide](https://lucide.dev), sin logos de marcas. Los disponibles están
   en `src/lib/iconos.ts` (por ejemplo `estetoscopio`, `jeringa`, `tijera`, `sirena`). Para sumar uno,
   importalo ahí.
@@ -56,11 +66,14 @@ en `seo.imagenOg`.
 
 ## Qué trae
 
-- Banner de demo (se apaga con `modoDemo: false`), barra que se esconde al bajar y menú para celular.
+- Banner y cartel de demo (se apagan con `modoDemo: false`), barra que se esconde al bajar y menú
+  para celular.
 - Botones de WhatsApp con mensaje precargado: uno por servicio, botón flotante con globo
-  "¿Te ayudamos?" y bloque final.
-- Horarios que resaltan el día de hoy y muestran **"Abierto ahora" / "Cerrado"** con la hora de
-  Argentina (o la zona horaria que configures). Soporta horario cortado.
+  "¿Te ayudamos?" (respeta el área segura del celular) y bloque final.
+- Horarios que resaltan el día de hoy y muestran **"Abierto ahora"** o **"Cerrado · abre … a las …"**
+  con la hora de Argentina (o la zona que configures), y "Guardia 24 h disponible" si hay urgencias.
+  Soporta horario cortado.
+- Sección "Lo que dicen en Google" con reseñas reales.
 - Mapa de OpenStreetMap y botón "Cómo llegar" que abre la app de mapas del celular.
 - SEO: título, descripción, Open Graph, datos estructurados `VeterinaryCare`, `robots.txt`, `sitemap.xml`
   y favicon con el color de la marca.
@@ -77,9 +90,8 @@ src/
   layouts/Base.astro   ← <head>, SEO, colores y fuentes
   pages/               ← la página y los archivos generados (og.jpg, favicon, robots, sitemap)
   styles/global.css    ← estilos base y colores de marca
-public/img/            ← fotos optimizadas
-fotos/                 ← fotos originales (no se suben al repo)
-scripts/optimizar-fotos.mjs
+  assets/img/           ← fotos (Astro las optimiza al compilar)
+public/img/            ← texturas decorativas
 ```
 
 ## Comandos
@@ -88,6 +100,5 @@ scripts/optimizar-fotos.mjs
 | --- | --- |
 | `npm install` | Instala dependencias |
 | `npm run dev` | Servidor local en http://localhost:4321 |
-| `npm run fotos` | Optimiza las fotos de `fotos/` a `public/img/` |
 | `npm run build` | Revisa tipos y genera el sitio en `dist/` |
 | `npm run preview` | Muestra el sitio ya compilado |

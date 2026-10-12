@@ -1,11 +1,12 @@
 ---
 import { negocio } from '../data/negocio';
+import { aniosDesde } from '../lib/utilidades';
 import Foto from './Foto.astro';
 import Icono from './Icono.astro';
 import TituloSeccion from './TituloSeccion.astro';
 
 const { porQue, marca } = negocio;
-const anios = marca.desde ? new Date().getFullYear() - marca.desde : 0;
+const anios = aniosDesde(marca.desde);
 ---
 
 {

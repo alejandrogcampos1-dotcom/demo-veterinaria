@@ -68,9 +68,6 @@
     word-spacing: 0.04em;
   }
 
-  p {
-    text-wrap: pretty;
-  }
 
   ::selection {
     background: color-mix(in oklab, var(--marca-acento) 35%, transparent);
@@ -154,6 +151,11 @@
     background: currentColor;
     animation: latido 2s cubic-bezier(0, 0, 0.2, 1) infinite;
   }
+}
+
+/* Banner de demo cerrado por el visitante */
+html.banner-cerrado #banner-demo {
+  display: none;
 }
 
 /* Dos secciones seguidas con el mismo fondo no duplican el espacio entre ellas */
